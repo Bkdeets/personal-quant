@@ -3,7 +3,6 @@ import pandas as pd
 import time
 import logging
 from sma import SMA
-import matplotlib.pyplot as plt
 
 
 class MACrossPaper():
