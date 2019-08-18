@@ -8,11 +8,11 @@ class SMA:
         self.calculate()
 
     def calculate(self):
-        for i in range(0,len(self.prices)):
-            if i >= self.period:
+        for i in range(0,len(self.prices.index)):
+            if i > self.period:
                 self.sma.append(
                     st.mean(
-                        [p.close for p in self.prices.iloc[i-self.period:i,:]]
+                        [row.close for index, row in self.prices.iloc[i - self.period:i, :].iterrows()]
                     )
                 )
 

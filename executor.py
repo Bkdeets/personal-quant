@@ -91,7 +91,6 @@ def trade(orders, wait=30):
     bulkBuy(buys)
 
 
-
 def get_prices(symbols, timeframe, start, end=None, limit=50, tz='America/New_York'):
     '''
     Gets prices for list of symbols and returns a pandas df
@@ -139,13 +138,10 @@ def beginTrading(strategy_instance):
 
     sleep = timeframe_map.get(strategy_instance.params.get('timeframe'))
 
-    # This user notation is just for demo purposes,
-    # we will have to call backend to see if strategy for user is active
     while True:
         clock = API.get_clock()
         now = clock.timestamp
-        # if clock.is_open:
-        if True:
+        if clock.is_open:
             tradeable_assets = strategy_instance.params.get('assets')
 
             logging.info('Getting prices...')
@@ -164,12 +160,3 @@ def beginTrading(strategy_instance):
             logging.info(f'done for {clock.timestamp}')
 
         time.sleep(60 * sleep)
-
-params = {
-    'period': 20,
-    'timeframe': '1Min',
-    'assets': ['AAPL', 'TSLA']
-}
-strat = MACrossPaper(params)
-
-beginTrading(strat)
