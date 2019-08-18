@@ -159,4 +159,4 @@ def beginTrading(strategy_instance):
             logging.info(API.get_account())
             logging.info(f'done for {clock.timestamp}')
 
-        time.sleep(30)
+        time.sleep(60 * sleep)
