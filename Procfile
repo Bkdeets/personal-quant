@@ -1,1 +1,2 @@
-worker: python main.py
+web: gunicorn bkd-paper-trading.wsgi
+run: python main.py
