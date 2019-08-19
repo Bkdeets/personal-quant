@@ -1,3 +1,4 @@
 backtrader
 pandas
 alpaca_trade_api
+flask

@@ -1,16 +1,26 @@
 from macross import MACrossPaper
 import executor
+import os
+from flask import Flask
+app = Flask(__name__)
 
-print('we runnin')
-macross_params = {
-    'period': 20,
-    'timeframe': '1Min',
-    'assets': ['AAPL', 'TSLA', 'SIRI', 'F', 'BAC', 'RRR', 'SPY']
-}
+@app.route("/")
+def hello():
+    return "We're up and runnin"
 
-strategies = [
-    MACrossPaper(macross_params)
-]
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
-for strategy in strategies:
-    executor.beginTrading(strategy)
+    macross_params = {
+        'period': 20,
+        'timeframe': '1Min',
+        'assets': ['AAPL', 'TSLA', 'SIRI', 'F', 'BAC', 'RRR', 'SPY']
+    }
+
+    strategies = [
+        MACrossPaper(macross_params)
+    ]
+
+    for strategy in strategies:
+        executor.beginTrading(strategy)
