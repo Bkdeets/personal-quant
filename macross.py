@@ -7,8 +7,8 @@ from sma import SMA
 
 class MACrossPaper():
     API = tradeapi.REST(
-        key_id='PKIG33U7XYR8ECVMMF4A',
-        secret_key='e83t4Cn5oY07EENvlhRKwjKyTbykd8wn8Phesmze',
+        key_id='PKJK7XMI9126SRRT2TKP',
+        secret_key='s7zZAtP3Q2EbaBc0GH1BqYE6TudeeRpZ21K1Bjco',
         base_url='https://paper-api.alpaca.markets')
 
     def __init__(self, params):
@@ -79,6 +79,7 @@ class MACrossPaper():
         ranked = self.checkToBuy(ranked[:max_positions])
         to_buy = [sma.ticker for sma in ranked]
         to_buy = to_buy[:len(to_sell)-1]
+
         orders = []
 
 
@@ -98,14 +99,14 @@ class MACrossPaper():
         # position size so that we don't end up holding too many positions.
         max_to_buy = max_positions - (len(positions) - len(to_sell))
 
-        portfolio_value = self.API.get_account().portfolio_value
+        buying_power = self.API.get_account().buying_power
 
         for symbol in to_buy:
 
                 if max_to_buy <= 0:
                     break
 
-                shares = (portfolio_value * position_size) // float(prices_df[symbol].close.values[-1])
+                shares = (float(buying_power) * float(position_size)) // prices_df[symbol].close.values[-1]
 
                 if shares == 0.0:
                     continue

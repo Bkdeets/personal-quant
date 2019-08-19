@@ -4,20 +4,25 @@ import executor
 macross_params = {
     'period': 20,
     'timeframe': '1Min',
-    'assets': ['AAPL', 'TSLA', 'SIRI', 'F', 'BAC', 'RRR', 'SPY']
-}
-
-macross_params2 = {
-    'period': 25,
-    'timeframe': '1Min',
-    'assets': ['AAPL', 'TSLA', 'SIRI', 'F', 'BAC', 'RRR', 'SPY']
+    'assets': [
+        'AAPL',
+        'TSLA',
+        'SIRI',
+        'F',
+        'BAC',
+        'RRR',
+        'GOOG',
+        'SNAP',
+        'GE',
+        'SPY',
+        'QQQ',
+        'ACB'
+    ]
 }
 
 strategies = [
-    MACrossPaper(macross_params),
-    MACrossPaper(macross_params2)
+    MACrossPaper(macross_params)
 ]
 
 for strategy in strategies:
-    executor.beginTrading(strategy)
     executor.beginTrading(strategy)
