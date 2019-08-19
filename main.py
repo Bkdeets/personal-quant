@@ -7,10 +7,17 @@ macross_params = {
     'assets': ['AAPL', 'TSLA', 'SIRI', 'F', 'BAC', 'RRR', 'SPY']
 }
 
+macross_params2 = {
+    'period': 25,
+    'timeframe': '1Min',
+    'assets': ['AAPL', 'TSLA', 'SIRI', 'F', 'BAC', 'RRR', 'SPY']
+}
+
 strategies = [
-    MACrossPaper(macross_params)
+    MACrossPaper(macross_params),
+    MACrossPaper(macross_params2)
 ]
 
-print('y tho')
 for strategy in strategies:
+    executor.beginTrading(strategy)
     executor.beginTrading(strategy)

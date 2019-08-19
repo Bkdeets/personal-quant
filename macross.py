@@ -22,6 +22,8 @@ class MACrossPaper():
         self.api = None
         self.params = params
 
+        print(self.params.get('period'))
+
 
     def sort_func(self, sma_obj):
         return sma_obj.sma[-1]
