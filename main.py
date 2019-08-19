@@ -8,19 +8,18 @@ app = Flask(__name__)
 def hello():
     return "We're up and runnin"
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+port = int(os.environ.get("PORT", 5000))
+app.run(host='0.0.0.0', port=port)
 
-    macross_params = {
-        'period': 20,
-        'timeframe': '1Min',
-        'assets': ['AAPL', 'TSLA', 'SIRI', 'F', 'BAC', 'RRR', 'SPY']
-    }
+macross_params = {
+    'period': 20,
+    'timeframe': '1Min',
+    'assets': ['AAPL', 'TSLA', 'SIRI', 'F', 'BAC', 'RRR', 'SPY']
+}
 
-    strategies = [
-        MACrossPaper(macross_params)
-    ]
+strategies = [
+    MACrossPaper(macross_params)
+]
 
-    for strategy in strategies:
-        executor.beginTrading(strategy)
+for strategy in strategies:
+    executor.beginTrading(strategy)
