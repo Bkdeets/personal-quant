@@ -13,6 +13,7 @@ macross_params2 = {
     'assets': ['AAPL', 'TSLA', 'SIRI', 'F', 'BAC', 'RRR', 'SPY']
 }
 
+intentional error to stop strategy execution
 strategies = [
     MACrossPaper(macross_params),
     MACrossPaper(macross_params2)
