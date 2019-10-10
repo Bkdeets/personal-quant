@@ -1,7 +1,8 @@
 from macross import MACrossPaper
 import executor
+from value import value
 
-intentional error to cause execution to stop (oofO
+# intentional error to cause execution to stop (oofO
 
 
 macross_params = {
@@ -22,11 +23,17 @@ macross_params = {
         'ACB'
     ]
 }
+# 
+# intentional error to stop strategy execution
 
-intentional error to stop strategy execution
+# strategies = [
+#     MACrossPaper(macross_params)
+# ]
+
+# for strategy in strategies:
+#     executor.beginTrading(strategy)
+
 strategies = [
-    MACrossPaper(macross_params)
+    #need to make value an object
 ]
-
-for strategy in strategies:
-    executor.beginTrading(strategy)
+executor.beginTrading(strategies)
