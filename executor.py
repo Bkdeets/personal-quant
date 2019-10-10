@@ -5,8 +5,8 @@ import alpaca_trade_api as tradeapi
 from macross import MACrossPaper
 
 API = tradeapi.REST(
-        key_id='PKIG33U7XYR8ECVMMF4A',
-        secret_key='e83t4Cn5oY07EENvlhRKwjKyTbykd8wn8Phesmze',
+        key_id='-',
+        secret_key='-',
         base_url='https://paper-api.alpaca.markets')
 
 
