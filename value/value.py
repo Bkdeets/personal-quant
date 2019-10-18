@@ -8,12 +8,46 @@ KEY = os.getenv('APCA_API_SECRET_KEY')
 ID = os.getenv('APCA_API_KEY_ID')
 BASE_URL = os.getenv('APCA_API_BASE_URL')
 POLYGON_BASE_URL = os.getenv('POLYGON_BASE_URL')
-S_AND_P_500 = ['MMM', 'ABT', 'ABBV', 'ACN', 'ATVI', 'AYI', 'ADBE', 'AMD', 'AAP', 'AES', 'AET', 'AMG', 'AFL', 'A', 'APD', 'AKAM', 'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'AGN', 'ADS', 'LNT', 'ALL', 'GOOGL', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'APC', 'ADI', 'ANDV', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AIV', 'AAPL', 'AMAT', 'APTV', 'ADM', 'ARNC', 'AJG', 'AIZ', 'T', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BHGE', 'BLL', 'BAC', 'BK', 'BAX', 'BBT', 'BDX', 'BRK.B', 'BBY', 'BIIB', 'BLK', 'HRB', 'BA', 'BKNG', 'BWA', 'BXP', 'BSX', 'BHF', 'BMY', 'AVGO', 'BF.B', 'CHRW', 'CA', 'COG', 'CDNS', 'CPB', 'COF', 'CAH', 'KMX', 'CCL', 'CAT', 'CBOE', 'CBRE', 'CBS', 'CELG', 'CNC', 'CNP', 'CTL', 'CERN', 'CF', 'SCHW', 'CHTR', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'XEC', 'CINF', 'CTAS', 'CSCO', 'C', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'CXO', 'COP', 'ED', 'STZ', 'COO', 'GLW', 'COST', 'COTY', 'CCI', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DAL', 'XRAY', 'DVN', 'DLR', 'DFS', 'DISCA', 'DISCK', 'DISH', 'DG', 'DLTR', 'D', 'DOV', 'DWDP', 'DPS', 'DTE', 'DRE', 'DUK', 'DXC', 'ETFC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ETR', 'EVHC', 'EOG', 'EQT', 'EFX', 'EQIX', 'EQR', 'ESS', 'EL', 'ES', 'RE', 'EXC', 'EXPE', 'EXPD', 'ESRX', 'EXR', 'XOM', 'FFIV', 'FB', 'FAST', 'FRT', 'FDX', 'FIS', 'FITB', 'FE', 'FISV', 'FLIR', 'FLS', 'FLR', 'FMC', 'FL', 'F', 'FTV', 'FBHS', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT', 'GD', 'GE', 'GGP', 'GIS', 'GM', 'GPC', 'GILD', 'GPN', 'GS', 'GT', 'GWW', 'HAL', 'HBI', 'HOG', 'HRS', 'HIG', 'HAS', 'HCA', 'HCP', 'HP', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HPQ', 'HUM', 'HBAN', 'HII', 'IDXX', 'INFO', 'ITW', 'ILMN', 'IR', 'INTC', 'ICE', 'IBM', 'INCY', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 'IVZ', 'IPGP', 'IQV', 'IRM', 'JEC', 'JBHT', 'SJM', 'JNJ', 'JCI', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'KMB', 'KIM', 'KMI', 'KLAC', 'KSS', 'KHC', 'KR', 'LB', 'LLL', 'LH', 'LRCX', 'LEG', 'LEN', 'LUK', 'LLY', 'LNC', 'LKQ', 'LMT', 'L', 'LOW', 'LYB', 'MTB', 'MAC', 'M', 'MRO', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC', 'MCD', 'MCK', 'MDT', 'MRK', 'MET', 'MTD', 'MGM', 'KORS', 'MCHP', 'MU', 'MSFT', 'MAA', 'MHK', 'TAP', 'MDLZ', 'MON', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MSCI', 'MYL', 'NDAQ', 'NOV', 'NAVI', 'NKTR', 'NTAP', 'NFLX', 'NWL', 'NFX', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'NBL', 'JWN', 'NSC', 'NTRS', 'NOC', 'NCLH', 'NRG', 'NUE', 'NVDA', 'ORLY', 'OXY', 'OMC', 'OKE', 'ORCL', 'PCAR', 'PKG', 'PH', 'PAYX', 'PYPL', 'PNR', 'PBCT', 'PEP', 'PKI', 'PRGO', 'PFE', 'PCG', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'RL', 'PPG', 'PPL', 'PX', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'RRC', 'RJF', 'RTN', 'O', 'RHT', 'REG', 'REGN', 'RF', 'RSG', 'RMD', 'RHI', 'ROK', 'COL', 'ROP', 'ROST', 'RCL', 'CRM', 'SBAC', 'SCG', 'SLB', 'STX', 'SEE', 'SRE', 'SHW', 'SPG', 'SWKS', 'SLG', 'SNA', 'SO', 'LUV', 'SPGI', 'SWK', 'SBUX', 'STT', 'SRCL', 'SYK', 'STI', 'SIVB', 'SYMC', 'SYF', 'SNPS', 'SYY', 'TROW', 'TTWO', 'TPR', 'TGT', 'TEL', 'FTI', 'TXN', 'TXT', 'TMO', 'TIF', 'TWX', 'TJX', 'TMK', 'TSS', 'TSCO', 'TDG', 'TRV', 'TRIP', 'FOXA', 'FOX', 'TSN', 'UDR', 'ULTA', 'USB', 'UAA', 'UA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UTX', 'UHS', 'UNM', 'VFC', 'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VIAB', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'WELL', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YUM', 'ZBH', 'ZION', 'ZTS']
+S_AND_P_500 = ['MMM', 'ABT', 'ABBV', 'ACN', 'ATVI', 'AYI', 'ADBE', 'AMD', 'AAP', 'AES', 'AET', 'AMG', 'AFL', 'A', 'APD', 'AKAM', 
+    'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'AGN', 'ADS', 'LNT', 'ALL', 'GOOGL', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 
+    'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'APC', 'ADI', 'ANDV', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AIV', 'AAPL', 'AMAT', 'APTV', 'ADM', 'ARNC', 'AJG', 
+    'AIZ', 'T', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BHGE', 'BLL', 'BAC', 'BK', 'BAX', 'BBT', 'BDX', 'BRK.B', 'BBY', 'BIIB', 'BLK', 
+    'HRB', 'BA', 'BKNG', 'BWA', 'BXP', 'BSX', 'BHF', 'BMY', 'AVGO', 'BF.B', 'CHRW', 'CA', 'COG', 'CDNS', 'CPB', 'COF', 'CAH', 'KMX', 'CCL', 'CAT', 'CBOE', 'CBRE', 'CBS', 'CELG', 
+    'CNC', 'CNP', 'CTL', 'CERN', 'CF', 'SCHW', 'CHTR', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'XEC', 'CINF', 'CTAS', 'CSCO', 
+    'C', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'CXO', 'COP', 
+    'ED', 'STZ', 'COO', 'GLW', 'COST', 'COTY', 'CCI', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DAL', 'XRAY', 'DVN', 'DLR', 'DFS', 'DISCA', 'DISCK', 
+    'DISH', 'DG', 'DLTR', 'D', 'DOV', 'DWDP', 'DPS', 'DTE', 'DRE', 'DUK', 'DXC', 'ETFC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ETR', 'EVHC', 'EOG', 'EQT', 'EFX', 'EQIX', 'EQR', 
+    'ESS', 'EL', 'ES', 'RE', 'EXC', 'EXPE', 'EXPD', 'ESRX', 'EXR', 'XOM', 'FFIV', 'FB', 'FAST', 'FRT', 'FDX', 'FIS', 
+    'FITB', 'FE', 'FISV', 'FLIR', 'FLS', 'FLR', 'FMC', 'FL', 'F', 'FTV', 'FBHS', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT', 
+    'GD', 'GE', 'GGP', 'GIS', 'GM', 'GPC', 'GILD', 'GPN', 'GS', 'GT', 'GWW', 'HAL', 'HBI', 'HOG', 'HRS', 'HIG', 'HAS', 'HCA', 'HCP', 'HP', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 
+    'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HPQ', 'HUM', 'HBAN', 'HII', 'IDXX', 'INFO', 'ITW', 'ILMN', 'IR', 'INTC', 'ICE', 'IBM', 'INCY', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 
+    'IVZ', 'IPGP', 'IQV', 'IRM', 'JEC', 'JBHT', 'SJM', 'JNJ', 'JCI', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'KMB', 'KIM', 'KMI', 'KLAC', 'KSS', 'KHC', 'KR', 'LB', 'LLL', 'LH', 'LRCX', 
+    'LEG', 'LEN', 'LUK', 'LLY', 'LNC', 'LKQ', 'LMT', 'L', 'LOW', 'LYB', 'MTB', 'MAC', 'M', 'MRO', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC', 'MCD', 'MCK', 
+    'MDT', 'MRK', 'MET', 'MTD', 'MGM', 'KORS', 'MCHP', 'MU', 'MSFT', 'MAA', 'MHK', 'TAP', 'MDLZ', 'MON', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MSCI', 'MYL', 'NDAQ', 'NOV', 'NAVI', 
+    'NKTR', 'NTAP', 'NFLX', 'NWL', 'NFX', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'NBL', 'JWN', 'NSC', 'NTRS', 'NOC', 'NCLH', 'NRG', 'NUE', 'NVDA', 'ORLY', 'OXY', 'OMC', 'OKE', 'ORCL', 'PCAR', 'PKG', 'PH', 'PAYX', 'PYPL', 'PNR', 'PBCT', 
+    'PEP', 'PKI', 'PRGO', 'PFE', 'PCG', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'RL', 'PPG', 'PPL', 'PX', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'RRC', 'RJF', 'RTN', 'O', 'RHT', 'REG', 'REGN', 'RF', 
+    'RSG', 'RMD', 'RHI', 'ROK', 'COL', 'ROP', 'ROST', 'RCL', 'CRM', 'SBAC', 'SCG', 'SLB', 'STX', 'SEE', 'SRE', 'SHW', 'SPG', 'SWKS', 'SLG', 'SNA', 'SO', 'LUV', 'SPGI', 'SWK', 'SBUX', 'STT', 'SRCL', 'SYK', 'STI', 'SIVB', 'SYMC', 'SYF', 'SNPS', 'SYY', 
+    'TROW', 'TTWO', 'TPR', 'TGT', 'TEL', 'FTI', 'TXN', 'TXT', 'TMO', 'TIF', 'TWX', 'TJX', 'TMK', 'TSS', 'TSCO', 'TDG', 'TRV', 'TRIP', 'FOXA', 'FOX', 'TSN', 'UDR', 'ULTA', 'USB', 'UAA', 'UA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UTX', 'UHS', 'UNM', 'VFC', 
+    'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VIAB', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'WELL', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YUM', 'ZBH', 'ZION', 'ZTS']
 
 def calc_taxt_rate(fundamental):
     earnings_before_tax = fundamental['earningsBeforeTax']
     tax_liability = fundamental['taxLiability']
     return tax_liability/earnings_before_tax
+
+def calc_residual_income(fundamental):
+    net_income = fundamental['netIncome']
+    equity = fundamental['shareholdersEquity']
+    cost_of_equity = calc_cost_of_equity(fundamental)
+    return net_income - (equity * cost_of_equity)
+
+def calc_residual_income_growth(fundamentals):
+    changes = []
+    for i in range(0,len(fundamentals)-2):
+        current = calc_residual_income(fundamentals[i])
+        previous = calc_residual_income(fundamentals[i+1])
+        changes.append((current-previous)/previous)
+    return statistics.mean(changes)
 
 def calc_eps_growth(fundamentals):
     changes = []
@@ -30,7 +64,9 @@ def calc_dividend_growth_rate(ticker, limit=7):
         current = dividends[i]['amount']
         previous = dividends[i+1]['amount']
         changes.append((current-previous)/previous)
-    return statistics.mean(changes)
+    if len(dividends) > 0:
+        return statistics.mean(changes)
+    return 0
 
 def calc_fcf_growth(fundamentals):
     changes = []
@@ -51,9 +87,9 @@ def get_market_return():
     return .1
 
 #CAPM
-def calc_cost_of_equity(fundamentals):
+def calc_cost_of_equity(fundamental):
     risk_free = get_risk_free_rate()
-    beta = Stock(fundamentals[0]['ticker']).get_beta()
+    beta = Stock(fundamental['ticker']).get_beta()
     equity_risk_premium = get_market_return() - get_risk_free_rate()
     return risk_free + beta * equity_risk_premium
 
@@ -67,7 +103,7 @@ def calc_wacc(fundamentals):
     debt = fundamentals[0]['debt']
     equity = fundamentals[0]['debtToEquityRatio']/debt
     value = debt + equity
-    cost_of_equity = calc_cost_of_equity(fundamentals)
+    cost_of_equity = calc_cost_of_equity(fundamentals[0])
     cost_of_debt= get_cost_of_debt(fundamentals)
     weight_of_debt = debt/value
     weight_of_equity = equity/value
@@ -83,20 +119,33 @@ def calc_dcf_model(fundamentals):
 
 # Divident Discount Model
 def calc_dd_model(fundamentals):
-    growth_rate = calc_dividend_growth_rate(fundamentals)
-    d1 = fundamentals[0] * (1 + growth_rate)
-    discount_rate = calc_cost_of_equity(fundamentals)
+    growth_rate = calc_dividend_growth_rate(fundamentals[0]['ticker'])
+    d1 = pw.get_dividends(fundamentals[0]['ticker'])[0]['amount'] * (1 + growth_rate)
+    discount_rate = calc_cost_of_equity(fundamentals[0])
     exp_price = d1/(discount_rate-growth_rate)
     current_price = pw.get_current_price(fundamentals[0]['ticker'])
     if exp_price > 0:
         return calc_mos(current_price, exp_price)
     return 0
 
+# Residual Income Model
 def calc_ri_model(fundamentals):
-    return
+    ticker = fundamentals[0]['ticker']
+    ri = calc_residual_income(fundamentals[0])
+    ri_growth = calc_residual_income_growth(fundamentals)
+    cost_of_equity = calc_cost_of_equity(fundamentals[0])
+    enterprise_value = 0
+    for i in range(0,5):
+        numerator = ri * math.pow(1+ri_growth,i)
+        denominator = math.pow(1 + cost_of_equity,i)
+        enterprise_value += numerator/denominator
+    current_price = pw.get_current_price(ticker)
+    enterprise_value += (fundamentals[0]['priceToBookValue'])*(1/current_price)
+    exp_price = enterprise_value/pw.get_shares_outstanding(ticker)
+    return calc_mos(current_price, exp_price)
 
 def calc_pe_model(fundamentals):
-    return
+    return 0
 
 # Free Cash Flow Model
 def calc_fcf_model(fundamentals):
@@ -123,35 +172,37 @@ def calc_gd_model(fundamentals):
     current_price = pw.get_current_price(fundamentals[0]['ticker'])
     return calc_mos(current_price, exp_price)
 
-def calc_fcff_model(fundamentals):
-    return 0
-
-def calc_fcfe_model(fundamentals):
-    return 0
-
 def calc_models(fundamentals):
-    return [
-        calc_dd_model(fundamentals),
-        calc_ri_model(fundamentals),
-        calc_pe_model(fundamentals),
-        calc_fcf_model(fundamentals),
-        calc_gd_model(fundamentals),
-        calc_fcff_model(fundamentals),
-        calc_fcfe_model(fundamentals)
-    ]
+    ri = calc_ri_model(fundamentals)
+    print(str(ri) + " ri")
+    fcf = calc_fcf_model(fundamentals)
+    print(str(fcf) + " fcf")
+    gd = calc_gd_model(fundamentals)
+    print(str(gd) + " gd")
+    if len(pw.get_dividends(fundamentals[0]['ticker'])) > 0:
+        dd = calc_dd_model(fundamentals)
+        print(str(dd) + " dd")
+        return [dd,ri,fcf,gd]
+    return [ri,fcf,gd]
     
 
 def get_check_for_buys():
     to_buy = []
     for ticker in S_AND_P_500:
         fundamentals = pw.get_fundamentals(ticker, limit=7)['results']
-        try:
-            if fundamentals[0]['debtToEquityRatio'] <= 1.5 and fundamentals[0]['priceToBookValue'] < 1:
+        # try:
+        #     put it here
+        # except Exception as e: 
+        #     print(e)
+        #     continue
+        if len(fundamentals) > 0 and fundamentals[0]['debtToEquityRatio'] <= 1.5 and fundamentals[0]['priceToBookValue'] < 1:
                 if calc_eps_growth(fundamentals) > 0:
+                    print(ticker + " passed... Running valuation models")
                     models = calc_models(fundamentals)
                     margin_of_safety = (sum(models))/len(models)
+                    print(ticker + " -- " + str(margin_of_safety))
                     if margin_of_safety > .3:
                         to_buy.append((ticker, margin_of_safety))
-        except:
-            continue
     return to_buy
+
+print(get_check_for_buys())
