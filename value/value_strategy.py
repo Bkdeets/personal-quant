@@ -41,7 +41,7 @@ class ValueStrategy():
         for position in positions:
             current_price = pw.get_current_price(position['symbol'])
             entry_price = position['avg_entry_price']
-            if (current_price - entry_price)/entry_price > self.params.tp:
+            if (current_price - entry_price)/entry_price > self.params.get('tp'):
                 to_sell.append(position)
 
 
@@ -63,7 +63,7 @@ class ValueStrategy():
                     'symbol': symbol,
                     'qty': shares,
                     'side': 'buy',
-                    'stop': current_price * self.params.stop
+                    'stop': current_price * self.params.get('sl')
                 })
                 self.logger.info(f'order(buy): {symbol} for {shares}')
         return orders

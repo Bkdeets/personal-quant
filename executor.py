@@ -144,7 +144,7 @@ def beginTrading(strategy_instance):
         if clock.is_open:
             tradeable_assets = strategy_instance.params.get('assets')
 
-            if strategy_instance.params.needs_prices:
+            if strategy_instance.params.get('needs_prices'):
                 logging.info('Getting prices...')
                 start = pd.Timestamp.now() - pd.Timedelta(days=2)
                 prices_df = get_prices(
