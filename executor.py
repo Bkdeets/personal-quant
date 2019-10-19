@@ -2,11 +2,11 @@ import logging
 import pandas as pd
 import time
 import alpaca_trade_api as tradeapi
-from macross import MACrossPaper
+import os
 
 API = tradeapi.REST(
-        key_id='-',
-        secret_key='-',
+        key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
+        secret_key=os.getenv('ALPACA_PAPER_KEY'),
         base_url='https://paper-api.alpaca.markets')
 
 
@@ -133,7 +133,7 @@ def beginTrading(strategy_instance):
     timeframe_map = {
         '1Min': 1,
         '5Min': 5,
-        'day' : 5
+        'day' : 30
     }
 
     sleep = timeframe_map.get(strategy_instance.params.get('timeframe'))
@@ -144,15 +144,21 @@ def beginTrading(strategy_instance):
         if clock.is_open:
             tradeable_assets = strategy_instance.params.get('assets')
 
-            logging.info('Getting prices...')
-            start = pd.Timestamp.now() - pd.Timedelta(days=2)
-            prices_df = get_prices(
-                tradeable_assets,
-                timeframe=strategy_instance.params.get('timeframe'),
-                start=start)
+            if strategy_instance.params.needs_prices:
+                logging.info('Getting prices...')
+                start = pd.Timestamp.now() - pd.Timedelta(days=2)
+                prices_df = get_prices(
+                    tradeable_assets,
+                    timeframe=strategy_instance.params.get('timeframe'),
+                    start=start)
+                
+                logging.info('Getting orders...')
+                orders = strategy_instance.get_orders(prices_df)
+            else:
+                logging.info('Getting orders...')
+                orders = strategy_instance.get_orders()
 
-            logging.info('Getting orders...')
-            orders = strategy_instance.get_orders(prices_df)
+            
 
             logging.info(orders)
             trade(orders)

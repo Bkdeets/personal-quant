@@ -33,7 +33,7 @@ def get_current_price(ticker):
     return get_last_trade(ticker)['last']['price']
 
 def get_free_cash_flow(ticker):
-    endpoint = 'v2//reference/financials/'
+    endpoint = 'v2/reference/financials/'
     params = {
         'apiKey': KEY
     } 
