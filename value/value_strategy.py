@@ -4,7 +4,7 @@ import time
 import logging
 import os
 from . import value
-import PolygonWrapper as pw 
+from . import PolygonWrapper as pw 
 
 
 class ValueStrategy():

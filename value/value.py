@@ -1,4 +1,4 @@
-import PolygonWrapper as pw 
+from . import PolygonWrapper as pw 
 import os
 import statistics
 import math

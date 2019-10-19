@@ -53,7 +53,4 @@ value_params = {
     'sl': .40
 }
 
-strategies = [
-    ValueStrategy(value_params)
-]
-executor.beginTrading(strategies)
+executor.beginTrading(ValueStrategy(value_params))
