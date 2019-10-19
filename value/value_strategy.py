@@ -9,8 +9,8 @@ import PolygonWrapper as pw
 
 class ValueStrategy():
     API = tradeapi.REST(
-        key_id='-',
-        secret_key='-',
+        key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
+        secret_key=os.getenv('ALPACA_PAPER_KEY'),
         base_url='https://paper-api.alpaca.markets')
 
     def __init__(self, params):
@@ -66,5 +66,4 @@ class ValueStrategy():
                     'stop': current_price * self.params.stop
                 })
                 self.logger.info(f'order(buy): {symbol} for {shares}')
-        
         return orders
