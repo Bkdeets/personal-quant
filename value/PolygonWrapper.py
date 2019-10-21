@@ -18,7 +18,8 @@ def get_fundamentals(ticker, limit=2):
     endpoint = 'v2/reference/financials/'
     params = {
         'apiKey': KEY,
-        'limit': str(limit)
+        'limit': str(limit),
+        'type': 'Q'
     }
     return make_request(endpoint, ticker, params)
 
@@ -53,3 +54,42 @@ def get_dividends(ticker, limit=7):
         'limit': str(limit)
     } 
     return make_request(endpoint, ticker, params)['results']
+
+def get_candle_by_date(ticker, date, limit=1):
+    endpoint = 'v1/open-close/' + ticker + '/' + date
+    params = {
+        'apiKey': KEY,
+        'limit': str(limit)
+    } 
+    url = POLYGON_BASE_URL + endpoint
+    response = requests.get(
+        url,
+        params=params
+    )
+    return response.json()
+
+def get_historical_quotes_from_date(ticker, start, limit=100):
+    endpoint = 'v1/historic/quotes/' + ticker + '/' + start
+    params = {
+        'apiKey': KEY,
+        'limit': str(limit)
+    } 
+    url = POLYGON_BASE_URL + endpoint
+    response = requests.get(
+        url,
+        params=params
+    )
+    return response.json()
+
+def get_aggregates(ticker, start, end, period='day', multiplier=1):
+    endpoint = 'v2/aggs/ticker/'+ticker+'/range/'+str(multiplier)+'/'+period+'/'+start+'/'+end
+    params = {
+        'apiKey': KEY
+    }
+    url = POLYGON_BASE_URL + endpoint
+    response = requests.get(
+        url,
+        params=params
+    )
+    return response.json()['results']
+
