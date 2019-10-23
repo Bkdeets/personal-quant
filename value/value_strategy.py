@@ -3,8 +3,8 @@ import pandas as pd
 import time
 import logging
 import os
-from . import value
-from . import PolygonWrapper as pw 
+import value
+import PolygonWrapper as pw 
 
 
 class ValueStrategy():

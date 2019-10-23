@@ -1,8 +1,8 @@
-import PolygonWrapper as pw 
 import os
 import statistics
 import math
 from iexfinance.stocks import Stock
+import PolygonWrapper as pw 
 
 KEY = os.getenv('APCA_API_SECRET_KEY')
 ID = os.getenv('APCA_API_KEY_ID')
@@ -12,9 +12,12 @@ S_AND_P_500 = []
 IEX_TOKEN = os.getenv('IEX_TOKEN')
 
 def calc_tax_rate(fundamental):
-    earnings_before_tax = fundamental['earningsBeforeTax']
-    tax_liability = fundamental['taxLiability']
-    return tax_liability/earnings_before_tax
+    earnings_before_tax = fundamental.get('earningsBeforeTax')
+    tax_liability = fundamental.get('taxLiability')
+    try:
+        return tax_liability/earnings_before_tax
+    except:
+        return .15
 
 def calc_eps_growth(fundamentals):
     changes = [0]
@@ -32,42 +35,44 @@ def get_market_return():
     return .1
 
 def get_cost_of_debt(fundamentals):
-    interest_paid = fundamentals[0]['interestExpense']
-    total_debt = fundamentals[0]['debt']
-    return interest_paid/total_debt
-
-def calc_tax_rate(fundamental):
-    # ticker = fundamental['ticker']
-    # stock = Stock(ticker).get_financials()
-    # print(stock)
-    # tax_paid = 'EffectiveIncomeTaxRateContinuingOperations'
-    return .15
+    interest_paid = fundamentals[0].get('interestExpense')
+    total_debt = fundamentals[0].get('debt')
+    try:
+        return interest_paid/total_debt
+    except:
+        return None
 
 def calc_mos(current, expected):
     return 1-(current/expected)
 
 def calc_wacc(fundamentals):
-    debt = fundamentals[0]['debt']
-    equity = fundamentals[0]['debtToEquityRatio']/debt
-    value = debt + equity
+    debt = fundamentals[0].get('debt')
+    dte = fundamentals[0].get('debtToEquityRatio')
     cost_of_equity = calc_cost_of_equity(fundamentals[0])
     cost_of_debt= get_cost_of_debt(fundamentals)
-    weight_of_debt = debt/value
-    weight_of_equity = equity/value
     tax_rate = calc_tax_rate(fundamentals[0])
-    wacc = weight_of_debt*cost_of_debt*(1-tax_rate)+weight_of_equity*cost_of_equity
-    return wacc
+    if debt and dte and cost_of_equity and cost_of_debt and tax_rate:
+        equity = dte/debt
+        value = debt + equity
+        weight_of_debt = debt/value
+        weight_of_equity = equity/value
+        wacc = weight_of_debt*cost_of_debt*(1-tax_rate)+weight_of_equity*cost_of_equity
+        return wacc
+    return None
 
 def calc_dividend_growth_rate(ticker, limit=7):
     dividends = pw.get_dividends(ticker, limit)
     changes = []
     for i in range(0,len(dividends)-2):
-        previous = dividends[i]['amount']
-        current = dividends[i+1]['amount']
-        changes.append((current-previous)/previous)
+        previous = dividends[i].get('amount')
+        current = dividends[i+1].get('amount')
+        if previous and current:
+            changes.append((current-previous)/previous)
+        else:
+            return None
     if len(dividends) > 0:
         return statistics.mean(changes)
-    return 0
+    return None
 
 def calc_fcf_growth(fundamentals):
     changes = [0]
@@ -87,9 +92,11 @@ def calc_residual_income_growth(fundamentals):
     for i in range(0,len(fundamentals)-2):
         previous = calc_residual_income(fundamentals[i])
         current = calc_residual_income(fundamentals[i+1])
-        if previous > 0 and previous and current:
+        if previous and current and previous > 0:
             changes.append((current-previous)/previous)
-    return statistics.mean(changes)
+    if len(changes) > 0:
+        return statistics.mean(changes)
+    return None
 
 def calc_residual_income(fundamental):
     net_income = fundamental.get('netIncome')
@@ -98,145 +105,147 @@ def calc_residual_income(fundamental):
     if net_income and equity:
         return net_income - (equity * cost_of_equity)
     else:
-        return 0
+        return None
 
 #CAPM
 def calc_cost_of_equity(fundamental):
     risk_free = get_risk_free_rate()
-    beta = Stock(fundamental['ticker'], token=IEX_TOKEN).get_beta()
+    beta = Stock(fundamental.get('ticker'), token=IEX_TOKEN).get_beta()
     equity_risk_premium = get_market_return() - get_risk_free_rate()
     return risk_free + beta * equity_risk_premium
 
 # Divident Discount Model
 def calc_dd_model(fundamentals):
-    growth_rate = calc_dividend_growth_rate(fundamentals[0]['ticker'])
-    d1 = pw.get_dividends(fundamentals[0]['ticker'])[0]['amount'] * (1 + growth_rate)
+    ticker = fundamentals[0].get('ticker')
+    growth_rate = calc_dividend_growth_rate(ticker)
+    divs = pw.get_dividends(ticker)
     discount_rate = calc_cost_of_equity(fundamentals[0])
-    exp_price = d1/(discount_rate-growth_rate)
-    current_price = pw.get_current_price(fundamentals[0]['ticker'])
-    if exp_price > 0:
-        return calc_mos(current_price, exp_price)
-    return 0
+    current_price = pw.get_current_price(ticker)
+    if len(divs) > 0 and growth_rate and ticker and discount_rate and current_price:
+        d1 = divs[0].get('amount') * (1 + growth_rate)
+        exp_price = d1/(discount_rate-growth_rate)
+        if exp_price > 0:
+            print(growth_rate)
+            print(d1)
+            print(discount_rate)
+            print(current_price)
+            print(exp_price)
+            return calc_mos(current_price, exp_price)
+    return None
 
 # Free Cash Flow Model
 def calc_fcf_model(fundamentals):
+    ticker = fundamentals[0].get('ticker')
     growth = calc_fcf_growth(fundamentals)
     wacc = calc_wacc(fundamentals)
     cf = calc_avg_fcf(fundamentals)
-    shares_outstanding = pw.get_shares_outstanding(fundamentals[0]['ticker'])
-    enterprise_value = 0
-    for i in range(0,5):
-        numerator = cf * math.pow(1+growth,i)
-        denominator = 1 + wacc
-        enterprise_value += numerator/denominator
-    terminal_value = cf/(wacc-growth)
-    enterprise_value += terminal_value
-    exp_price = enterprise_value/shares_outstanding
-    current_price = pw.get_current_price(fundamentals[0]['ticker'])
-    return calc_mos(current_price, exp_price)
+    shares_outstanding = pw.get_shares_outstanding(ticker)
+    current_price = pw.get_current_price(ticker)
+    if current_price and shares_outstanding and cf and wacc and growth and ticker:
+        enterprise_value = 0
+        for i in range(0,5):
+            numerator = cf * math.pow(1+growth,i)
+            denominator = 1 + wacc
+            enterprise_value += numerator/denominator
+        terminal_value = cf/(wacc-growth)
+        enterprise_value += terminal_value
+        exp_price = enterprise_value/shares_outstanding
+        return calc_mos(current_price, exp_price)
+    return None
 
 # Graham Dodd Model
 def calc_gd_model(fundamentals):
-    eps = fundamentals[0]['earningsPerBasicShareUSD']
+    eps = fundamentals[0].get('earningsPerBasicShareUSD')
+    ticker = fundamentals[0].get('ticker')
+    current_price = pw.get_current_price(ticker)
     growth = calc_eps_growth(fundamentals)
-    exp_price = (eps * (7 + growth) * 4)/3.5
-    current_price = pw.get_current_price(fundamentals[0]['ticker'])
-    return calc_mos(current_price, exp_price)
+    if eps and growth and current_price:
+        exp_price = (eps * (7 + growth) * .015)/.03
+        return calc_mos(current_price, exp_price)
+    return None
 
 # Residual Income Model
 def calc_ri_model(fundamentals):
-    ticker = fundamentals[0]['ticker']
+    ticker = fundamentals[0].get('ticker')
     ri = calc_residual_income(fundamentals[0])
     ri_growth = calc_residual_income_growth(fundamentals)
     cost_of_equity = calc_cost_of_equity(fundamentals[0])
-    enterprise_value = 0
-    for i in range(0,5):
-        numerator = ri * math.pow(1+ri_growth,i)
-        denominator = math.pow(1 + cost_of_equity,i)
-        enterprise_value += numerator/denominator
     current_price = pw.get_current_price(ticker)
-    enterprise_value += (fundamentals[0]['priceToBookValue'])*(1/current_price)
-    exp_price = enterprise_value/pw.get_shares_outstanding(ticker)
-    return calc_mos(current_price, exp_price)
+    price_to_book = fundamentals[0].get('priceToBookValue')
+    shares_outstanding = pw.get_shares_outstanding(ticker)
+    if shares_outstanding and price_to_book and current_price and cost_of_equity and ri_growth and ri:
+        enterprise_value = 0
+        for i in range(0,5):
+            numerator = ri * math.pow(1+ri_growth,i)
+            denominator = math.pow(1 + cost_of_equity,i)
+            enterprise_value += numerator/denominator
+        enterprise_value += (price_to_book)*(1/current_price)
+        exp_price = enterprise_value/shares_outstanding
+        return calc_mos(current_price, exp_price)
+    return None
 
 def calc_models(fundamentals):
+    gd = calc_gd_model(fundamentals)
     ri = calc_ri_model(fundamentals)
     fcf = calc_fcf_model(fundamentals)
-    gd = calc_gd_model(fundamentals)
-    if len(pw.get_dividends(fundamentals[0]['ticker'])) > 0:
-        dd = calc_dd_model(fundamentals)
-        return [dd,ri,fcf,gd]
-    return [ri,fcf,gd]
+    dd = calc_dd_model(fundamentals)
+    models = [gd,ri,fcf,dd]
+    res = []
+    for model in models:
+        if model:
+            res.append(model)
+    if len(res) > 0:
+        return res
+    return None
     
 
 def get_check_for_buys(level, assets):
     to_buy = []
     for ticker in assets:
         fundamentals = pw.get_fundamentals(ticker, limit=7)['results'][::-1]
-        try:
-            if len(fundamentals) > 0 and fundamentals[0]['debtToEquityRatio'] <= 1.5 and fundamentals[0]['priceToBookValue'] < 1:
-                if calc_eps_growth(fundamentals) > 0:
-                    print(ticker + " passed... Running valuation models")
-                    models = calc_models(fundamentals)
+        dte = fundamentals[0].get('debtToEquityRatio')
+        ptb = fundamentals[0].get('priceToBookValue')
+        if len(fundamentals) > 0 and dte <= 1.5 and ptb < 1:
+            if calc_eps_growth(fundamentals) > 0:
+                print(ticker + " passed... Running valuation models")
+                models = calc_models(fundamentals)
+                if models:
                     margin_of_safety = (sum(models))/len(models)
                     print(ticker + " -- " + str(margin_of_safety))
                     if margin_of_safety > level:
                         to_buy.append((ticker, margin_of_safety))
-        except Exception as e: 
-            print(e)
+        else:
             continue
     return to_buy.sort(key=lambda tup: tup[1])
 
 def get_check_for_buy(level, ticker):
     to_buy = []
     fundamentals = pw.get_fundamentals(ticker, limit=7)['results']
-    try:
-        if len(fundamentals) > 0 and fundamentals[0]['debtToEquityRatio'] <= 1.5 and fundamentals[0]['priceToBookValue'] < 1:
-            if calc_eps_growth(fundamentals) > 0:
-                print(ticker + " passed... Running valuation models")
-                models = calc_models(fundamentals)
+    dte = fundamentals[0].get('debtToEquityRatio')
+    ptb = fundamentals[0].get('priceToBookValue')
+    eps_growth = calc_eps_growth(fundamentals)
+    if len(fundamentals) > 0 and dte <= 1.5 and ptb < 1 and eps_growth and eps_growth > 0:
+            print(ticker + " passed... Running valuation models")
+            models = calc_models(fundamentals)
+            if models:
                 margin_of_safety = (sum(models))/len(models)
-                print(ticker + " -- " + str(margin_of_safety))
+                print(ticker + " -- " + str(margin_of_safety) + models)
                 if margin_of_safety > level:
                     to_buy.append((ticker, margin_of_safety))
-    except Exception as e: 
-        print(e)
     return to_buy
 
-# get_check_for_buys(.2,[
-#         'MMM', 'ABT', 'ABBV', 'ACN', 'ATVI', 'AYI', 'ADBE', 'AMD', 'AAP', 'AES', 'AET', 'AMG', 'AFL', 'A', 'APD', 'AKAM', 
-#         'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'AGN', 'ADS', 'LNT', 'ALL', 'GOOGL', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 
-#         'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'APC', 'ADI', 'ANDV', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AIV', 'AAPL', 'AMAT', 'APTV', 'ADM', 'ARNC', 'AJG', 
-#         'AIZ', 'T', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BHGE', 'BLL', 'BAC', 'BK', 'BAX', 'BBT', 'BDX', 'BRK.B', 'BBY', 'BIIB', 'BLK', 
-#         'HRB', 'BA', 'BKNG', 'BWA', 'BXP', 'BSX', 'BHF', 'BMY', 'AVGO', 'BF.B', 'CHRW', 'CA', 'COG', 'CDNS', 'CPB', 'COF', 'CAH', 'KMX', 'CCL', 'CAT', 'CBOE', 'CBRE', 'CBS', 'CELG', 
-#         'CNC', 'CNP', 'CTL', 'CERN', 'CF', 'SCHW', 'CHTR', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'XEC', 'CINF', 'CTAS', 'CSCO', 
-#         'C', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'CXO', 'COP', 
-#         'ED', 'STZ', 'COO', 'GLW', 'COST', 'COTY', 'CCI', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DAL', 'XRAY', 'DVN', 'DLR', 'DFS', 'DISCA', 'DISCK', 
-#         'DISH', 'DG', 'DLTR', 'D', 'DOV', 'DWDP', 'DPS', 'DTE', 'DRE', 'DUK', 'DXC', 'ETFC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ETR', 'EVHC', 'EOG', 'EQT', 'EFX', 'EQIX', 'EQR', 
-#         'ESS', 'EL', 'ES', 'RE', 'EXC', 'EXPE', 'EXPD', 'ESRX', 'EXR', 'XOM', 'FFIV', 'FB', 'FAST', 'FRT', 'FDX', 'FIS', 
-#         'FITB', 'FE', 'FISV', 'FLIR', 'FLS', 'FLR', 'FMC', 'FL', 'F', 'FTV', 'FBHS', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT', 
-#         'GD', 'GE', 'GGP', 'GIS', 'GM', 'GPC', 'GILD', 'GPN', 'GS', 'GT', 'GWW', 'HAL', 'HBI', 'HOG', 'HRS', 'HIG', 'HAS', 'HCA', 'HCP', 'HP', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 
-#         'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HPQ', 'HUM', 'HBAN', 'HII', 'IDXX', 'INFO', 'ITW', 'ILMN', 'IR', 'INTC', 'ICE', 'IBM', 'INCY', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 
-#         'IVZ', 'IPGP', 'IQV', 'IRM', 'JEC', 'JBHT', 'SJM', 'JNJ', 'JCI', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'KMB', 'KIM', 'KMI', 'KLAC', 'KSS', 'KHC', 'KR', 'LB', 'LLL', 'LH', 'LRCX', 
-#         'LEG', 'LEN', 'LUK', 'LLY', 'LNC', 'LKQ', 'LMT', 'L', 'LOW', 'LYB', 'MTB', 'MAC', 'M', 'MRO', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC', 'MCD', 'MCK', 
-#         'MDT', 'MRK', 'MET', 'MTD', 'MGM', 'KORS', 'MCHP', 'MU', 'MSFT', 'MAA', 'MHK', 'TAP', 'MDLZ', 'MON', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MSCI', 'MYL', 'NDAQ', 'NOV', 'NAVI', 
-#         'NKTR', 'NTAP', 'NFLX', 'NWL', 'NFX', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'NBL', 'JWN', 'NSC', 'NTRS', 'NOC', 'NCLH', 'NRG', 'NUE', 'NVDA', 'ORLY', 'OXY', 'OMC', 'OKE', 'ORCL', 'PCAR', 'PKG', 'PH', 'PAYX', 'PYPL', 'PNR', 'PBCT', 
-#         'PEP', 'PKI', 'PRGO', 'PFE', 'PCG', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'RL', 'PPG', 'PPL', 'PX', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'RRC', 'RJF', 'RTN', 'O', 'RHT', 'REG', 'REGN', 'RF', 
-#         'RSG', 'RMD', 'RHI', 'ROK', 'COL', 'ROP', 'ROST', 'RCL', 'CRM', 'SBAC', 'SCG', 'SLB', 'STX', 'SEE', 'SRE', 'SHW', 'SPG', 'SWKS', 'SLG', 'SNA', 'SO', 'LUV', 'SPGI', 'SWK', 'SBUX', 'STT', 'SRCL', 'SYK', 'STI', 'SIVB', 'SYMC', 'SYF', 'SNPS', 'SYY', 
-#         'TROW', 'TTWO', 'TPR', 'TGT', 'TEL', 'FTI', 'TXN', 'TXT', 'TMO', 'TIF', 'TWX', 'TJX', 'TMK', 'TSS', 'TSCO', 'TDG', 'TRV', 'TRIP', 'FOXA', 'FOX', 'TSN', 'UDR', 'ULTA', 'USB', 'UAA', 'UA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UTX', 'UHS', 'UNM', 'VFC', 
-#         'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VIAB', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'WELL', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YUM', 'ZBH', 'ZION', 'ZTS'
-#     ])
-
 def get_check_for_buy_backtest(level, ticker, fundamentals):
-    to_buy = False
+    to_buy = (False,0)
     dte = fundamentals[0].get('debtToEquityRatio')
     ptb = fundamentals[0].get('priceToBookValue')
     if len(fundamentals) > 4 and dte and dte <= 1.5 and ptb and ptb < 1:
         if calc_eps_growth(fundamentals) > 0:
             print(ticker + " passed... Running valuation models")
             models = calc_models(fundamentals)
-            margin_of_safety = (sum(models))/len(models)
-            print(ticker + " -- " + str(margin_of_safety))
-            if margin_of_safety > level:
-                to_buy = True
+            if models:
+                margin_of_safety = (sum(models))/len(models)
+                print(ticker + " -- " + str(margin_of_safety))
+                print(models)
+                if margin_of_safety > level:
+                    to_buy = (True, margin_of_safety)
     return to_buy
