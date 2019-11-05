@@ -4,7 +4,7 @@ import time
 import logging
 import os
 import value
-import polygonWrapper as pw
+from . import polygon as p
 from datetime import datetime, date, timedelta
 
 class ValueStrategy():
@@ -26,7 +26,7 @@ class ValueStrategy():
     def checkForSellsTP(self, positions):
         to_sell = []
         for position in positions:
-                current_price = pw.get_current_price(position['symbol'])
+                current_price = p.get_current_price(position['symbol'])
                 entry_price = position['avg_entry_price']
                 if (current_price - entry_price)/entry_price > self.params.get('tp'):
                     to_sell.append(position)
@@ -71,7 +71,7 @@ class ValueStrategy():
                 'side': 'sell'
             })
         for symbol in to_buy:
-            current_price = pw.get_current_price(symbol)
+            current_price = p.get_current_price(symbol)
             shares = (float(buying_power) * float(position_size)) // current_price
             if shares == 0.0:
                 continue

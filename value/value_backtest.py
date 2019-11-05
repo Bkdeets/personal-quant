@@ -1,6 +1,6 @@
 
 from datetime import datetime, timedelta
-import polygonWrapper as pw
+from . import polygon as pw
 
 import os
 import statistics
@@ -22,7 +22,7 @@ def calc_dd_model(fundamentals, current_price):
     ticker = fundamentals[0].get('ticker')
     growth_rate = u.calc_dividend_growth_rate(ticker)
     if growth_rate and growth_rate > 0:
-        divs = pw.get_dividends(ticker)
+        divs = p.get_dividends(ticker)
         if len(divs) > 0:
             discount_rate = u.calc_cost_of_equity(fundamentals[-1])
             if discount_rate and growth_rate < discount_rate and current_price:
@@ -122,7 +122,7 @@ def iterate_prices(ticker, entry_price, start, sl, tp):
     last_date = 0
     end = datetime.strptime(start, '%Y-%m-%d') + timedelta(days=90)
     end = end.strftime('%Y-%m-%d')
-    candles = pw.get_aggregates(ticker, start, end)
+    candles = p.get_aggregates(ticker, start, end)
     for i in range(0,len(candles)-1):
         date = datetime.strptime(start, '%Y-%m-%d') + timedelta(days=i)
         date = date.strftime('%Y-%m-%d')
@@ -146,7 +146,7 @@ def backtest(level, ticker):
     balance = 1000
 
     # Old to new
-    fundamentals = pw.get_fundamentals(ticker, limit=50)['results'][::-1] #Quarterly -- 10 years
+    fundamentals = p.get_fundamentals(ticker, limit=50)['results'][::-1] #Quarterly -- 10 years
     if len(fundamentals) > 0:
         exit_date = fundamentals[0]['calendarDate']
         for i in range(5, len(fundamentals)-1):
@@ -161,7 +161,7 @@ def backtest(level, ticker):
                 for j in range(0,3):
                     date = datetime_date + timedelta(days=j)
                     date = date.strftime('%Y-%m-%d')
-                    price = pw.get_candle_by_date(ticker, date).get('close')
+                    price = p.get_candle_by_date(ticker, date).get('close')
                     if price:
                         break
                 is_buy = get_check_for_buy_backtest(level, ticker, fund_window, price)

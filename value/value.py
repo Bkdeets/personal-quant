@@ -2,7 +2,7 @@ import os
 import statistics
 import math
 from iexfinance.stocks import Stock
-import polygonWrapper as pw 
+from . import polygon as pw 
 import utility as u
 
 KEY = os.getenv('APCA_API_SECRET_KEY')
@@ -19,10 +19,10 @@ def calc_dd_model(fundamentals):
     ticker = fundamentals[0].get('ticker')
     growth_rate = u.calc_dividend_growth_rate(ticker)
     if growth_rate and growth_rate > 0:
-        divs = pw.get_dividends(ticker)
+        divs = p.get_dividends(ticker)
         if len(divs) > 0:
             discount_rate = u.calc_cost_of_equity(fundamentals[-1])
-            current_price = pw.get_current_price(ticker)
+            current_price = p.get_current_price(ticker)
             if discount_rate and growth_rate < discount_rate and current_price:
                 d1 = divs[-1].get('amount') * (1 + growth_rate)
                 exp_price = d1/(discount_rate-growth_rate)
@@ -38,8 +38,8 @@ def calc_fcf_model(fundamentals):
         wacc = u.calc_wacc(fundamentals)
         cf = u.calc_avg_fcf(fundamentals)
         if wacc and cf and cf > 0 and growth < wacc:
-            shares_outstanding = pw.get_shares_outstanding(ticker)
-            current_price = pw.get_current_price(ticker)
+            shares_outstanding = p.get_shares_outstanding(ticker)
+            current_price = p.get_current_price(ticker)
             if current_price and shares_outstanding:
                 enterprise_value = 0
                 for i in range(0,len(fundamentals)):
@@ -56,7 +56,7 @@ def calc_fcf_model(fundamentals):
 def calc_gd_model(fundamentals):
     eps = fundamentals[-1].get('earningsPerBasicShareUSD')
     ticker = fundamentals[0].get('ticker')
-    current_price = pw.get_current_price(ticker)
+    current_price = p.get_current_price(ticker)
     growth = u.calc_eps_growth(fundamentals)
     if eps and growth and current_price and growth > 0:
         exp_price = ((100*eps) * (7 + (growth*100)) * 1.5)/3
@@ -71,9 +71,9 @@ def calc_ri_model(fundamentals):
     if ri and ri_growth and ri_growth > 0:
         cost_of_equity = u.calc_cost_of_equity(fundamentals[-1])
         if cost_of_equity:
-            current_price = pw.get_current_price(ticker)
+            current_price = p.get_current_price(ticker)
             price_to_book = fundamentals[-1].get('priceToBookValue')
-            shares_outstanding = pw.get_shares_outstanding(ticker)
+            shares_outstanding = p.get_shares_outstanding(ticker)
             if shares_outstanding and price_to_book and current_price:
                 enterprise_value = 0
                 for i in range(1,len(fundamentals)):
@@ -105,7 +105,7 @@ def calc_models(fundamentals):
 def get_check_for_buys(level, assets):
     to_buy = []
     for ticker in assets:
-        fundamentals = pw.get_fundamentals(ticker, limit=7)['results'][::-1]
+        fundamentals = p.get_fundamentals(ticker, limit=7)['results'][::-1]
         dte = fundamentals[-1].get('debtToEquityRatio')
         ptb = fundamentals[-1].get('priceToBookValue')
         if len(fundamentals) > 0 and dte <= 1.5 and ptb < 1:
@@ -123,7 +123,7 @@ def get_check_for_buys(level, assets):
 
 def get_check_for_buy(level, ticker):
     to_buy = []
-    fundamentals = pw.get_fundamentals(ticker, limit=7)['results']
+    fundamentals = p.get_fundamentals(ticker, limit=7)['results']
     dte = fundamentals[-1].get('debtToEquityRatio')
     ptb = fundamentals[-1].get('priceToBookValue')
     eps_growth = u.calc_eps_growth(fundamentals)

@@ -2,7 +2,7 @@ import os
 import statistics
 import math
 from iexfinance.stocks import Stock
-import polygonWrapper as pw 
+from . import polygon as pw 
 
 KEY = os.getenv('APCA_API_SECRET_KEY')
 ID = os.getenv('APCA_API_KEY_ID')
@@ -70,7 +70,7 @@ def calc_wacc(fundamentals):
     return None
 
 def calc_dividend_growth_rate(ticker, limit=7):
-    dividends = pw.get_dividends(ticker, limit)
+    dividends = p.get_dividends(ticker, limit)
     changes = []
     for i in range(0,len(dividends)-1):
         previous = dividends[i].get('amount')
