@@ -2,7 +2,7 @@ import os
 import statistics
 import math
 from iexfinance.stocks import Stock
-from . import polygon as pw 
+import polygon as p 
 import utility as u
 
 KEY = os.getenv('APCA_API_SECRET_KEY')

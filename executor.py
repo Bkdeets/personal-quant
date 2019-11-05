@@ -3,7 +3,6 @@ import pandas as pd
 import time
 import alpaca_trade_api as tradeapi
 import os
-import value
 
 API = tradeapi.REST(
         key_id=os.getenv('ALPACA_PAPER_KEY_ID'),

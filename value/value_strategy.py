@@ -3,8 +3,8 @@ import pandas as pd
 import time
 import logging
 import os
-import value
-from . import polygon as p
+import polygon as p
+import value_funcs as v
 from datetime import datetime, date, timedelta
 
 class ValueStrategy():
@@ -33,7 +33,7 @@ class ValueStrategy():
         return to_sell
 
     def get_orders(self, position_size=.02):
-        to_buy = value.get_check_for_buys(.4, self.params.get('assets'))
+        to_buy = v.get_check_for_buys(.4, self.params.get('assets'))
         account = self.API.get_account()
 
         # now get the current positions and see what to buy,
