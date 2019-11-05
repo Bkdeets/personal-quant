@@ -50,7 +50,7 @@ value_params = {
     ],
     'needs_prices': False,
     'tp': .50,
-    'sl': .40
+    'sl': .50
 }
 
 executor.beginTrading(ValueStrategy(value_params))
