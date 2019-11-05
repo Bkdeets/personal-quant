@@ -1,6 +1,6 @@
 
 from datetime import datetime, timedelta
-from . import polygon as pw
+import polygon as p
 
 import os
 import statistics

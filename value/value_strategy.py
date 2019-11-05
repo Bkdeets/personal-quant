@@ -3,9 +3,10 @@ import pandas as pd
 import time
 import logging
 import os
+from datetime import datetime, date, timedelta
+
 import polygon as p
 import value_funcs as v
-from datetime import datetime, date, timedelta
 
 class ValueStrategy():
     API = tradeapi.REST(
