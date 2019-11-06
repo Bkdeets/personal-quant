@@ -121,42 +121,24 @@ def get_check_for_buys(level, assets):
     to_buy = []
     for ticker in assets:
         try:
-            fundamentals = p.get_fundamentals(ticker, limit=7)['results'][::-1]
+            fundamentals = p.get_fundamentals(ticker, limit=7)
         except:
             continue
-        dte = fundamentals[-1].get('debtToEquityRatio')
-        ptb = fundamentals[-1].get('priceToBookValue')
-        if len(fundamentals) > 0 and dte <= 1.5 and ptb < 1:
-            if u.calc_eps_growth(fundamentals) > 0:
-                print(ticker + " passed... Running valuation models")
-                models = calc_models(fundamentals)
-                if models:
-                    margin_of_safety = (sum(models))/len(models)
-                    print(ticker + " -- " + str(margin_of_safety))
-                    if margin_of_safety > level:
-                        to_buy.append((ticker, margin_of_safety))
-        else:
-            continue
+        if fundamentals.get('results'):
+            fundamentals = fundamentals.get('results')[::-1]
+            if len(fundamentals) > 0:
+                dte = fundamentals[-1].get('debtToEquityRatio')
+                ptb = fundamentals[-1].get('priceToBookValue')
+                if dte <= 1.5 and ptb < 1:
+                    if u.calc_eps_growth(fundamentals) > 0:
+                        print(ticker + " passed... Running valuation models")
+                        models = calc_models(fundamentals)
+                        if models:
+                            margin_of_safety = (sum(models))/len(models)
+                            print(ticker + " -- " + str(margin_of_safety))
+                            if margin_of_safety > level:
+                                to_buy.append((ticker, margin_of_safety))
     return to_buy.sort(key=lambda tup: tup[1])
-
-def get_check_for_buy(level, ticker):
-    to_buy = []
-    try:
-        fundamentals = p.get_fundamentals(ticker, limit=7)['results']
-    except:
-        return to_buy
-    dte = fundamentals[-1].get('debtToEquityRatio')
-    ptb = fundamentals[-1].get('priceToBookValue')
-    eps_growth = u.calc_eps_growth(fundamentals)
-    if len(fundamentals) > 0 and dte <= 1.5 and ptb < 1 and eps_growth and eps_growth > 0:
-            print(ticker + " passed... Running valuation models")
-            models = calc_models(fundamentals)
-            if models:
-                margin_of_safety = (sum(models))/len(models)
-                print(ticker + " -- " + str(margin_of_safety) + models)
-                if margin_of_safety > level:
-                    to_buy.append((ticker, margin_of_safety))
-    return to_buy
 
 def get_check_for_buy_backtest(level, ticker, fundamentals):
     to_buy = (False,0)

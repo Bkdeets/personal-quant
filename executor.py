@@ -140,7 +140,6 @@ def beginTrading(strategy_instance):
 
     while True:
         clock = API.get_clock()
-        now = clock.timestamp
         if clock.is_open:
             tradeable_assets = strategy_instance.params.get('assets')
 
@@ -157,8 +156,6 @@ def beginTrading(strategy_instance):
             else:
                 logging.info('Getting orders...')
                 orders = strategy_instance.get_orders()
-
-            
 
             logging.info(orders)
             trade(orders)

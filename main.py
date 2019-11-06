@@ -1,9 +1,6 @@
 import executor
 from value_strategy import ValueStrategy
 
-# intentional error to cause execution to stop (oofO
-
-
 macross_params = {
     'period': 20,
     'timeframe': '1Min',
