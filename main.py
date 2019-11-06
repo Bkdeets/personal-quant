@@ -1,5 +1,5 @@
 import executor
-from value.value_strategy import ValueStrategy
+from value_strategy import ValueStrategy
 
 # intentional error to cause execution to stop (oofO
 
