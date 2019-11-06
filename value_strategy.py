@@ -27,7 +27,10 @@ class ValueStrategy():
     def checkForSellsTP(self, positions):
         to_sell = []
         for position in positions:
-                current_price = p.get_current_price(position['symbol'])
+                try:
+                    current_price = p.get_current_price(position['symbol'])
+                except:
+                    continue
                 entry_price = position['avg_entry_price']
                 if (current_price - entry_price)/entry_price > self.params.get('tp'):
                     to_sell.append(position)
@@ -72,7 +75,10 @@ class ValueStrategy():
                 'side': 'sell'
             })
         for symbol in to_buy:
-            current_price = p.get_current_price(symbol)
+            try:
+                current_price = p.get_current_price(symbol)
+            except:
+                continue
             shares = (float(buying_power) * float(position_size)) // current_price
             if shares == 0.0:
                 continue

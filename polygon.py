@@ -31,21 +31,21 @@ def get_last_trade(ticker):
     return make_request(endpoint, ticker, params)
 
 def get_current_price(ticker):
-    return get_last_trade(ticker)['last']['price']
+    return get_last_trade(ticker).get('last').get('price')
 
 def get_free_cash_flow(ticker):
     endpoint = 'v2/reference/financials/'
     params = {
         'apiKey': KEY
     } 
-    return make_request(endpoint, ticker, params)['results'][0]['freeCashFlow']
+    return make_request(endpoint, ticker, params).get('results')[0].get('freeCashFlow')
 
 def get_shares_outstanding(ticker):
     endpoint = 'v2/reference/financials/'
     params = {
         'apiKey': KEY
     } 
-    return make_request(endpoint, ticker, params)['results'][0]['shares']
+    return make_request(endpoint, ticker, params).get('results')[0].get('shares')
 
 def get_dividends(ticker, limit=7):
     endpoint = 'v2/reference/dividends/'
@@ -53,7 +53,7 @@ def get_dividends(ticker, limit=7):
         'apiKey': KEY,
         'limit': str(limit)
     } 
-    return make_request(endpoint, ticker, params)['results'][::-1]
+    return make_request(endpoint, ticker, params).get('results')[::-1]
 
 def get_candle_by_date(ticker, date, limit=1):
     endpoint = 'v1/open-close/' + ticker + '/' + date
@@ -91,5 +91,5 @@ def get_aggregates(ticker, start, end, period='day', multiplier=1):
         url,
         params=params
     )
-    return response.json()['results']
+    return response.json().get('results')
 
