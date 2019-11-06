@@ -36,7 +36,7 @@ class ValueStrategy():
                     to_sell.append(position)
         return to_sell
 
-    def get_orders(self, position_size=.02):
+    def get_orders(self, position_size=.10):
         to_buy = v.get_check_for_buys(.4, self.params.get('assets'))
         account = self.API.get_account()
 
