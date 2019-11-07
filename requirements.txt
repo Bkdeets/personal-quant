@@ -1,5 +1,5 @@
 backtrader
 pandas
-alpaca_trade_api
+alpaca_trade_api==.41
 flask
 iexfinance
