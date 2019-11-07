@@ -135,10 +135,11 @@ def get_check_for_buys(level, assets):
                         models = calc_models(fundamentals)
                         if models:
                             margin_of_safety = (sum(models))/len(models)
-                            print(ticker + " -- " + str(margin_of_safety))
                             if margin_of_safety > level:
+                                print(ticker + " -- " + str(margin_of_safety))
                                 to_buy.append((ticker, margin_of_safety))
-    return to_buy.sort(key=lambda tup: tup[1])
+    print(sorted(to_buy, key=lambda tup: tup[1]))
+    return sorted(to_buy, key=lambda tup: tup[1])
 
 def get_check_for_buy_backtest(level, ticker, fundamentals):
     to_buy = (False,0)
