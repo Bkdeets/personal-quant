@@ -36,6 +36,20 @@ class ValueStrategy():
                     to_sell.append(position)
         return to_sell
 
+
+    def checkForExpired(self, positions):
+        to_sell = []
+        currentDate = date.today()
+        for position in positions:
+            activities = self.API.get_activities(activity_types='FILL')
+            for event in activities:
+                if event.symbol == position.symbol:
+                    entryDate = datetime.strptime(str(event.transaction_time).split(' ')[0],'%Y-%m-%d').date()
+                    if (currentDate - timedelta(days=90)) >= entryDate:
+                        to_sell.append(position)
+        return to_sell
+
+
     def get_orders(self, position_size=.10):
         to_buy = v.get_check_for_buys(.4, self.params.get('assets'))
         account = self.API.get_account()
@@ -57,13 +71,10 @@ class ValueStrategy():
         # to_sell.append(checkForSellsTP(positions))
 
         # chekc to see if position has expired
-        currentDate = date.today()
-        for position in positions:
-            activities = self.API.get_activities(activity_types='FILL')
-            for event in activities:
-                if event.symbol == position.symbol:
-                    if (currentDate - timedelta(days=90)) >= event.transaction_time.to_datetime().date():
-                        to_sell.append(position)
+        expired = self.checkForExpired(positions)
+        for pos in expired:
+            if pos not in to_sell:
+                to_sell.append(pos)
 
         buying_power = self.API.get_account().buying_power
         
@@ -90,3 +101,18 @@ class ValueStrategy():
             })
             self.logger.info(f'order(buy): {symbol} for {shares}')
         return orders
+
+# class Position():
+#     def __init__(self, symbol):
+#         self.symbol = symbol
+
+# sp5 = ['AAPL']
+# value_params = {
+#     'timeframe': 'day',
+#     'assets': sp5,
+#     'needs_prices': False,
+#     'tp': .50,
+#     'sl': .50
+# }
+# strat = ValueStrategy(value_params)
+# print(strat.checkForExpired([Position('SEE')]))
