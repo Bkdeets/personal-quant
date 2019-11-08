@@ -62,7 +62,7 @@ class ValueStrategy():
             activities = self.API.get_activities(activity_types='FILL')
             for event in activities:
                 if event.symbol == position.symbol:
-                    if (currentDate - timedelta(days=90)) >= date.fromtimestamp(event.transaction_time):
+                    if (currentDate - timedelta(days=90)) >= event.transaction_time.to_datetime().date():
                         to_sell.append(position)
 
         buying_power = self.API.get_account().buying_power
