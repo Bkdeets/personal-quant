@@ -48,43 +48,14 @@ class ValueStrategy():
                     if (currentDate - timedelta(days=90)) >= entryDate:
                         to_sell.append(position)
         return to_sell
-
-
-    def get_orders(self, position_size=.10):
-        to_buy = v.get_check_for_buys(.4, self.params.get('assets'))
-        account = self.API.get_account()
-
-        # now get the current positions and see what to buy,
-        # what to sell to transition to today's desired portfolio.
-        positions = self.API.list_positions()
-        self.logger.info(positions)
-
-        holdings = {p.symbol: p for p in positions}
-        holding_symbols = list(holdings.keys())
+    
+    def processBuys(self, holding_symbols):
+        orders = []
+        v.get_check_for_buys(.4, self.params.get('assets'))
         if to_buy:
             to_buy = [order[0] for order in to_buy if order[0] not in holding_symbols]
         else:
-            to_buy = []
-        to_sell = []
-
-        # Check for profit target
-        # to_sell.append(checkForSellsTP(positions))
-
-        # chekc to see if position has expired
-        expired = self.checkForExpired(positions)
-        for pos in expired:
-            if pos not in to_sell:
-                to_sell.append(pos)
-
-        buying_power = self.API.get_account().buying_power
-        
-        orders = []
-        for position in to_sell:
-            orders.append({
-                'symbol': position['symbol'],
-                'qty': position['qty'],
-                'side': 'sell'
-            })
+            return []
         for symbol in to_buy:
             try:
                 current_price = p.get_current_price(symbol)
@@ -99,7 +70,33 @@ class ValueStrategy():
                 'side': 'buy',
                 'stop': current_price * self.params.get('sl')
             })
-            self.logger.info(f'order(buy): {symbol} for {shares}')
+        return orders
+
+
+
+    def get_orders(self, position_size=.10):
+        account = self.API.get_account()
+        positions = self.API.list_positions()
+        buying_power = account.buying_power
+        holdings = {p.symbol: p for p in positions}
+        holding_symbols = list(holdings.keys())
+        to_buy_orders = self.processBuys(holding_symbols)
+        orders = [o for o in to_buy_orders]
+        
+        to_sell = []
+        expired = self.checkForExpired(positions)
+        for pos in expired:
+            if pos not in to_sell:
+                to_sell.append(pos)
+
+        
+        for position in to_sell:
+            orders.append({
+                'symbol': position['symbol'],
+                'qty': position['qty'],
+                'side': 'sell'
+            })
+        
         return orders
 
 # class Position():

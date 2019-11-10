@@ -138,7 +138,6 @@ def get_check_for_buys(level, assets):
                             if margin_of_safety > level:
                                 print(ticker + " -- " + str(margin_of_safety))
                                 to_buy.append((ticker, margin_of_safety))
-    print(sorted(to_buy, key=lambda tup: tup[1]))
     return sorted(to_buy, key=lambda tup: tup[1])
 
 def get_check_for_buy_backtest(level, ticker, fundamentals):

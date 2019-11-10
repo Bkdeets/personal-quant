@@ -3,3 +3,4 @@ pandas
 alpaca_trade_api==0.41
 flask
 iexfinance
+pytest
