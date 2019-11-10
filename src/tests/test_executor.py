@@ -102,10 +102,4 @@ class TestExecutor:
     def test_get_prices(self):
         self.before_each()
         prices = self.e.get_prices(['AAPL'], 'day', 100)
-        assert prices == True
-
-    def test_fail(self):
-        assert False
-
-        
-        
+        assert prices == True   
