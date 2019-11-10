@@ -1,6 +1,7 @@
-import executor
+from executor import Executor
 from value_strategy import ValueStrategy
-
+import concurrent.futures
+import threading
 macross_params = {
     'period': 20,
     'timeframe': '1Min',
@@ -53,4 +54,11 @@ value_params = {
     'sl': .50
 }
 
-executor.beginTrading(ValueStrategy(value_params))
+def rootHandler(strategies):
+    for strategy in strategies:
+        print('Strategy thread started')
+        e = Executor('paper')
+        x = threading.Thread(target=e.beginTrading, args=(strategy,))
+        x.start()
+
+rootHandler([ValueStrategy(value_params)])
