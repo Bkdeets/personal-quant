@@ -104,5 +104,8 @@ class TestExecutor:
         prices = self.e.get_prices(['AAPL'], 'day', 100)
         assert prices == True
 
+    def test_fail(self):
+        assert False
+
         
         
