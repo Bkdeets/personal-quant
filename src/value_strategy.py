@@ -50,6 +50,7 @@ class ValueStrategy():
         return to_sell
     
     def processBuys(self, holding_symbols):
+        account = self.API.get_account()
         orders = []
         v.get_check_for_buys(.4, self.params.get('assets'))
         if to_buy:
@@ -61,7 +62,7 @@ class ValueStrategy():
                 current_price = p.get_current_price(symbol)
             except:
                 continue
-            shares = (float(buying_power) * float(position_size)) // current_price
+            shares = (float(account.buying_power) * float(account.position_size)) // current_price
             if shares == 0.0:
                 continue
             orders.append({

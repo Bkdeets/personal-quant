@@ -21,9 +21,6 @@ class MockApi:
         return True
 
 class TestExecutor:
-    e = Executor('test')
-    e.setApi(MockApi())
-
     def before_each(self):
         self.e = Executor('test')
         self.e.setApi(MockApi())
