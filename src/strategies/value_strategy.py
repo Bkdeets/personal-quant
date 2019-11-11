@@ -56,7 +56,7 @@ class ValueStrategy():
                         to_sell.append(position)
         return to_sell
     
-    def processBuys(self, holding_symbols):
+    def processBuys(self, position_size, holding_symbols):
         account = self.API.get_account()
         orders = []
         to_buy = v.get_check_for_buys(.4, self.params.get('assets'))
@@ -69,7 +69,7 @@ class ValueStrategy():
                 current_price = p.get_current_price(symbol)
             except:
                 continue
-            shares = (float(account.buying_power) * float(account.position_size)) // current_price
+            shares = (float(account.buying_power) * position_size) // current_price
             if shares == 0.0:
                 continue
             orders.append({
@@ -95,7 +95,7 @@ class ValueStrategy():
         holdings = {p.symbol: p for p in positions}
         holding_symbols = list(holdings.keys())
         expired = self.checkForExpired(positions)
-        to_buy_orders = self.processBuys(holding_symbols)
+        to_buy_orders = self.processBuys(position_size, holding_symbols)
         to_sell_orders = self.processSells(expired)
         orders = [o for o in to_buy_orders]
         for o in to_sell_orders:

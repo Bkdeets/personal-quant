@@ -89,7 +89,7 @@ class TestValueStrategy:
             'assets': ['AAPL']
         }
         self.beforeEach(params=params)
-        result = self.v.processBuys(['AAPL'])
+        result = self.v.processBuys(.10, ['AAPL'])
         assert len(result) == 0
 
     def test_processSells(self):
