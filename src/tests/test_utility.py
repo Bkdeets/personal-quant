@@ -1,7 +1,6 @@
 from src.utility import Utility
 import statistics
 
-
 class TestUtility:
 
     def test_calc_eps_growth_no_changes(self):
