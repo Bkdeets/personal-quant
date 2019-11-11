@@ -9,18 +9,27 @@ from ..wrappers import polygon as p
 from ..utility import value_funcs as v
 
 class ValueStrategy():
-    API = tradeapi.REST(
-        key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
-        secret_key=os.getenv('ALPACA_PAPER_KEY'),
-        base_url='https://paper-api.alpaca.markets')
-
-    def __init__(self, params):
+    API = {}
+    
+    def __init__(self, env, params):
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.DEBUG)
         self.NY = 'America/New_York'
         self.id = 1
-        self.api = None
         self.params = params
+        if env == 'test':
+            self.API = {}
+        elif env == 'paper':
+            self.API = tradeapi.REST(
+                key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
+                secret_key=os.getenv('ALPACA_PAPER_KEY'),
+                base_url='https://paper-api.alpaca.markets')
+        elif env == 'live':
+            self.API = tradeapi.REST(
+                key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
+                secret_key=os.getenv('ALPACA_PAPER_KEY'),
+                base_url='https://paper-api.alpaca.markets')
+
     
     def checkForSellsTP(self, positions):
         to_sell = []
