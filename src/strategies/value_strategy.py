@@ -5,8 +5,8 @@ import logging
 import os
 from datetime import datetime, date, timedelta
 
-import src.polygon as p
-import src.value_funcs as v
+from ..wrappers import polygon as p
+from ..utility import value_funcs as v
 
 class ValueStrategy():
     API = tradeapi.REST(
@@ -50,7 +50,7 @@ class ValueStrategy():
     def processBuys(self, holding_symbols):
         account = self.API.get_account()
         orders = []
-        v.get_check_for_buys(.4, self.params.get('assets'))
+        to_buy = v.get_check_for_buys(.4, self.params.get('assets'))
         if to_buy:
             to_buy = [order[0] for order in to_buy if order[0] not in holding_symbols]
         else:

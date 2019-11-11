@@ -1,4 +1,4 @@
-from ..executor import Executor
+from src.executor import Executor
 import pytest
 import datetime
 class MockObj(object):

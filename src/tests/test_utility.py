@@ -1,4 +1,4 @@
-from src.utility import Utility
+from src.utility.utility import Utility
 import statistics
 
 class TestUtility:
