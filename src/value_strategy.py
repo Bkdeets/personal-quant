@@ -5,8 +5,8 @@ import logging
 import os
 from datetime import datetime, date, timedelta
 
-import polygon as p
-import value_funcs as v
+import src.polygon as p
+import src.value_funcs as v
 
 class ValueStrategy():
     API = tradeapi.REST(
@@ -17,10 +17,8 @@ class ValueStrategy():
     def __init__(self, params):
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.DEBUG)
-
         self.NY = 'America/New_York'
         self.id = 1
-
         self.api = None
         self.params = params
     
@@ -72,32 +70,27 @@ class ValueStrategy():
                 'stop': current_price * self.params.get('sl')
             })
         return orders
-
-
-
-    def get_orders(self, position_size=.10):
-        account = self.API.get_account()
-        positions = self.API.list_positions()
-        buying_power = account.buying_power
-        holdings = {p.symbol: p for p in positions}
-        holding_symbols = list(holdings.keys())
-        to_buy_orders = self.processBuys(holding_symbols)
-        orders = [o for o in to_buy_orders]
-        
-        to_sell = []
-        expired = self.checkForExpired(positions)
+    
+    def processSells(self, expired):
+        orders = []
         for pos in expired:
-            if pos not in to_sell:
-                to_sell.append(pos)
-
-        
-        for position in to_sell:
             orders.append({
-                'symbol': position['symbol'],
-                'qty': position['qty'],
+                'symbol': pos['symbol'],
+                'qty': pos['qty'],
                 'side': 'sell'
             })
-        
+        return orders
+
+    def get_orders(self, position_size=.10):
+        positions = self.API.list_positions()
+        holdings = {p.symbol: p for p in positions}
+        holding_symbols = list(holdings.keys())
+        expired = self.checkForExpired(positions)
+        to_buy_orders = self.processBuys(holding_symbols)
+        to_sell_orders = self.processSells(expired)
+        orders = [o for o in to_buy_orders]
+        for o in to_sell_orders:
+            orders.append(o)
         return orders
 
 # class Position():
