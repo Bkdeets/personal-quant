@@ -41,7 +41,7 @@ def calc_fcf_model(fundamentals):
     ticker = fundamentals[0].get('ticker')
     growth = Utility().calc_fcf_growth(fundamentals)
     if growth and growth > 0:
-        wacc = Utility().calc_wacc(fundamentals)
+        wacc = Utility().calc_wacc(fundamentals[-1])
         cf = Utility().calc_avg_fcf(fundamentals)
         if wacc and cf and cf > 0 and growth < wacc:
             try:
