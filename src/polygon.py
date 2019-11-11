@@ -53,10 +53,7 @@ def get_dividends(ticker, limit=7):
         'apiKey': KEY,
         'limit': str(limit)
     }
-    if limit > 0:
-        return make_request(endpoint, ticker, params).get('results')[::-1]
-    else:
-        return None
+    return make_request(endpoint, ticker, params).get('results')[::-1]
 
 def get_candle_by_date(ticker, date, limit=1):
     endpoint = 'v1/open-close/' + ticker + '/' + date
