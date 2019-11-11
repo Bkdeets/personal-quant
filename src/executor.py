@@ -33,9 +33,9 @@ class Executor:
                 base_url='https://paper-api.alpaca.markets')
         elif env == 'live':
             self.API = tradeapi.REST(
-                key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
-                secret_key=os.getenv('ALPACA_PAPER_KEY'),
-                base_url='https://paper-api.alpaca.markets')
+                key_id=os.getenv('APCA_API_KEY_ID'),
+                secret_key=os.getenv('APCA_API_SECRET_KEY'),
+                base_url=os.getenv('APCA_API_BASE_URL'))
 
 
     def buy(self, ticker, order_type, units, limit_price=None):

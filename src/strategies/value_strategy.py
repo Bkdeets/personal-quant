@@ -26,9 +26,9 @@ class ValueStrategy():
                 base_url='https://paper-api.alpaca.markets')
         elif env == 'live':
             self.API = tradeapi.REST(
-                key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
-                secret_key=os.getenv('ALPACA_PAPER_KEY'),
-                base_url='https://paper-api.alpaca.markets')
+                key_id=os.getenv('APCA_API_KEY_ID'),
+                secret_key=os.getenv('APCA_API_SECRET_KEY'),
+                base_url=os.getenv('APCA_API_BASE_URL'))
 
     
     def checkForSellsTP(self, positions):
@@ -90,7 +90,7 @@ class ValueStrategy():
             })
         return orders
 
-    def get_orders(self, position_size=.10):
+    def get_orders(self, position_size=.05):
         positions = self.API.list_positions()
         holdings = {p.symbol: p for p in positions}
         holding_symbols = list(holdings.keys())
@@ -105,7 +105,7 @@ class ValueStrategy():
 # class Position():
 #     def __init__(self, symbol):
 #         self.symbol = symbol
-
+#
 # sp5 = ['AAPL']
 # value_params = {
 #     'timeframe': 'day',

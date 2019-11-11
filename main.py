@@ -63,4 +63,4 @@ def rootHandler(strategies):
         x = threading.Thread(target=e.beginTrading, args=(strategy,))
         x.start()
 
-rootHandler([ValueStrategy('paper', value_params)])
+rootHandler([ValueStrategy('live', value_params)])
