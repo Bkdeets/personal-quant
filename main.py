@@ -59,7 +59,7 @@ value_params = {
 def rootHandler(strategies):
     for strategy in strategies:
         print('Strategy thread started')
-        e = Executor('paper')
+        e = Executor('live')
         x = threading.Thread(target=e.beginTrading, args=(strategy,))
         x.start()
 
