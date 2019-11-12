@@ -101,18 +101,3 @@ class ValueStrategy():
         for o in to_sell_orders:
             orders.append(o)
         return orders
-
-# class Position():
-#     def __init__(self, symbol):
-#         self.symbol = symbol
-#
-# sp5 = ['AAPL']
-# value_params = {
-#     'timeframe': 'day',
-#     'assets': sp5,
-#     'needs_prices': False,
-#     'tp': .50,
-#     'sl': .50
-# }
-# strat = ValueStrategy(value_params)
-# print(strat.checkForExpired([Position('SEE')]))
