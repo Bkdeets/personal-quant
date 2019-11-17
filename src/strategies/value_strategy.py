@@ -4,32 +4,20 @@ import time
 import logging
 import os
 from datetime import datetime, date, timedelta
-
+from ..strategies.AStrategy import AStrategy
+from ..utility.utility import Utility
 from ..wrappers import polygon as p
 from ..utility import value_funcs as v
 
-class ValueStrategy():
+class ValueStrategy(AStrategy):
     API = {}
     
     def __init__(self, env, params):
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.DEBUG)
         self.NY = 'America/New_York'
-        self.id = 1
+        self.strategy_code = 'VLU'
         self.params = params
-        if env == 'test':
-            self.API = {}
-        elif env == 'paper':
-            self.API = tradeapi.REST(
-                key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
-                secret_key=os.getenv('ALPACA_PAPER_KEY'),
-                base_url='https://paper-api.alpaca.markets')
-        elif env == 'live':
-            self.API = tradeapi.REST(
-                key_id=os.getenv('APCA_API_KEY_ID'),
-                secret_key=os.getenv('APCA_API_SECRET_KEY'),
-                base_url=os.getenv('APCA_API_BASE_URL'))
-
     
     def checkForSellsTP(self, positions):
         to_sell = []
@@ -47,8 +35,8 @@ class ValueStrategy():
     def checkForExpired(self, positions):
         to_sell = []
         currentDate = date.today()
+        activities = self.API.get_activities(activity_types='FILL')
         for position in positions:
-            activities = self.API.get_activities(activity_types='FILL')
             for event in activities:
                 if event.symbol == position.symbol:
                     entryDate = datetime.strptime(str(event.transaction_time).split(' ')[0],'%Y-%m-%d').date()
@@ -76,7 +64,7 @@ class ValueStrategy():
                 'symbol': symbol,
                 'qty': shares,
                 'side': 'buy',
-                'stop': current_price * self.params.get('sl')
+                'stop': current_price * self.params.get('sl')-1
             })
         return orders
     
@@ -91,7 +79,7 @@ class ValueStrategy():
         return orders
 
     def get_orders(self, position_size=.05):
-        positions = self.API.list_positions()
+        positions = Utility().getPositionsByStrategy(self.strategy_code, self.API)
         holdings = {p.symbol: p for p in positions}
         holding_symbols = list(holdings.keys())
         expired = self.checkForExpired(positions)

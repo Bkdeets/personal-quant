@@ -1,5 +1,6 @@
 from src.executor import Executor
 from src.strategies.value_strategy import ValueStrategy
+from src.strategies.macross import MACross
 import concurrent.futures
 import threading
 macross_params = {
@@ -59,8 +60,12 @@ value_params = {
 def rootHandler(strategies):
     for strategy in strategies:
         print('Strategy thread started')
-        e = Executor('paper')
-        x = threading.Thread(target=e.beginTrading, args=(strategy,))
+        e = Executor('paper', strategy)
+        x = threading.Thread(target=e.beginTrading)
         x.start()
 
-rootHandler([ValueStrategy('paper', value_params)])
+rootHandler(
+    [
+        ValueStrategy('paper', value_params),
+        MACross('paper', macross_params)
+    ])

@@ -125,3 +125,28 @@ class Utility:
             return net_income - (equity * cost_of_equity)
         else:
             return None
+
+    def getPositionsByStrategy(self, strategy_code, API):
+        positions = API.list_positions()
+        holdings = {p.symbol: p for p in positions}
+        holding_symbols = list(holdings.keys())
+        strategy_positions = []
+        activities = API.get_activities(activity_types='FILL')
+        for position in positions:
+            for event in activities:
+                    if event.symbol == position.symbol:
+                        if event.id.startsWith(strategy_code):
+                            strategy_positions.append(position)
+        return strategy_positions
+    
+    def getCurrentSide(self, strategy_code, ticker, API):
+        positions = Utility().getPositionsByStrategy(strategy_code, API)
+        position = [p for p in positions if p.symbol == ticker]
+        return position.side
+    
+    def getPosition(self, strategy_code, ticker, API):
+        positions = Utility().getPositionsByStrategy(strategy_code, API)
+        position = [p for p in positions if p.symbol == ticker]
+        return position
+
+
