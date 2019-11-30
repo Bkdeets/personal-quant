@@ -3,6 +3,7 @@ import statistics
 import math
 from iexfinance.stocks import Stock
 from ..wrappers import polygon as p
+import pandas as pd
 
 KEY = os.getenv('APCA_API_SECRET_KEY')
 ID = os.getenv('APCA_API_KEY_ID')
@@ -148,5 +149,42 @@ class Utility:
         positions = Utility().getPositionsByStrategy(strategy_code, API)
         position = [p for p in positions if p.symbol == ticker]
         return position
+
+    def get_prices(self, start, timeframe, assets, API, end=None, limit=50, tz='America/New_York'):
+        '''
+        Gets prices for list of symbols and returns a pandas df
+
+                                        AAPL                    ...     BAC
+                                    open     high      low  ...     low   close volume
+        time                                                  ...
+        2019-06-21 11:50:00-04:00  200.020  200.070  199.720  ...  28.420  28.435   6170
+        2019-06-21 11:55:00-04:00  199.850  199.980  199.810  ...  28.410  28.435   6169
+        '''
+
+        if not end:
+            end = pd.Timestamp.now(tz=tz)
+
+        # The maximum number of symbols we can request at once is 200.
+        barset = None
+        i = 0
+        while i <= len(assets) - 1:
+            if barset is None:
+                barset = API.get_barset(
+                    assets[i:i+200],
+                    timeframe,
+                    limit=limit,
+                    start=start,
+                    end=end)
+            else:
+                barset.update(
+                    API.get_barset(
+                        assets[i:i+200],
+                        timeframe,
+                        limit=limit,
+                        start=start,
+                        end=end))
+            i += 200
+
+        return barset.df
 
 

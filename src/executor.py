@@ -162,7 +162,6 @@ class Executor:
         while True:
             clock = self.API.get_clock()
             if clock.is_open:
-
                 if self.strategy_instance.params.get('needs_prices'):
                     logging.info('Getting prices...')
                     start = pd.Timestamp.now() - pd.Timedelta(days=2)

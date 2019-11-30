@@ -10,7 +10,6 @@ class Marsi(AStrategy):
         super().__init__()
         self.strategy_code = 'MAR'
 
-
     def getSmaIndication(self, current_price, current_sma, ticker):
         positions = Utility().getPositionsByStrategy(self.strategy_code, self.API)
         holdings = {p.symbol: p for p in positions}
@@ -23,11 +22,11 @@ class Marsi(AStrategy):
         if ticker in holding_symbols:
             position = holdings.get(ticker)
             if position.get('side') == 'long':
-                if isPriceGreater:
+                if isPriceGreater and isDistanceGreaterThanLevel:
                     indication = 'exit'
                     return indication
             else:
-                if not isPriceGreater:
+                if not isPriceGreater and isDistanceGreaterThanLevel:
                     indication = 'exit'
                     return indication
         else:
@@ -48,8 +47,8 @@ class Marsi(AStrategy):
         topLevel = self.params.get('rsi').get('topLevel')
         bottomLevel = self.params.get('rsi').get('bottomLevel')
 
-        isLong = current_rsi > topLevel
-        isShort = current_rsi < bottomLevel
+        isLong = current_rsi < bottomLevel
+        isShort = current_rsi > topLevel
 
         if ticker in holding_symbols:
             position = holdings.get(ticker)
@@ -75,50 +74,58 @@ class Marsi(AStrategy):
         account = self.API.get_account()
         value = account.cash + account.equity
         avail_cap = value * position_size
-        return avail_cap//price
+
+        shares = avail_cap//price
+
+        if account.buying_power > shares*price:
+            return shares
+        else:
+            return account.buying_power//price
 
     
     def getIndicationOrder(self, smaIndication, rsiIndication, side, position_size, ticker, current_price):
+        if smaIndication == 'exit' or rsiIndication == 'exit' and side:
+            if side == 'long':
+                return {
+                    'symbol': ticker,
+                    'qty': Utility().getPosition(self.strategy_code, ticker, self.API).qty,
+                    'side': 'sell'
+                }
+            elif side == 'short':
+                return {
+                    'symbol': ticker,
+                    'qty': Utility().getPosition(self.strategy_code, ticker, self.API).qty,
+                    'side': 'buy'
+                }
         if smaIndication and rsiIndication:
-            if smaIndication == 'exit' or rsiIndication == 'exit' and side:
-                if side == 'long':
-                    return {
-                        'symbol': ticker,
-                        'qty': Utility().getPosition(self.strategy_code, ticker, self.API).qty,
-                        'side': 'sell'
-                    }
-                elif side == 'short':
-                    return {
-                        'symbol': ticker,
-                        'qty': Utility().getPosition(self.strategy_code, ticker, self.API).qty,
-                        'side': 'buy'
-                    }
-            elif smaIndication == 'buy' and rsiIndication == 'buy':
+            if smaIndication == 'buy' and rsiIndication == 'buy':
                 shares = self.getShares(current_price, position_size)
                 return {
                         'symbol': ticker,
                         'qty': shares,
                         'side': 'buy',
-                        'stop': current_price * self.params.get('sl')-1
+                        'stop': current_price * (self.params.get('sl')-1)
                     }
             elif smaIndication == 'short' and rsiIndication == 'short':
                 shares = self.getShares(current_price, position_size)
                 return {
                         'symbol': ticker,
-                        'qty': shares
+                        'qty': shares,
                         'side': 'sell',
-                        'stop': current_price * 1+self.params.get('sl')
+                        'stop': current_price * (1+self.params.get('sl'))
                     }
         return None
         
 
-    def get_orders(self, position_size=.05, prices_df=[]):
+    def get_orders(self, position_size=.02, prices_df=[]):
         orders = []
         for ticker in self.params.get('assets'):
             current_price = p.get_current_price(ticker)
-            sma = SMA(self.params.get('period'), prices_df, ticker)
-            rsi = RSI(self.params.get('period'), prices_df, ticker)
+            sma = SMA(self.params.get('period'), prices_df[ticker], ticker)
+            rsi = RSI(self.params.get('period'), prices_df[ticker], ticker)
             current_sma = sma.smas[-1]
+
+            self.params['sma']['level'] = sma.apds[-1][0] + sma.apds[-1][1]
             current_rsi = rsi.rsis[-1]
 
             smaIndication = self.getSmaIndication(current_price, current_sma, ticker)
@@ -136,5 +143,3 @@ class Marsi(AStrategy):
                 orders.append(order)
 
         return orders
-
-        
