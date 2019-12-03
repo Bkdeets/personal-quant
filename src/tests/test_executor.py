@@ -21,6 +21,7 @@ class MockApi:
         return True
 
 class MockStrategy:
+    strategy_code = 'test'
     def getOrders(self):
         return [True]
 
