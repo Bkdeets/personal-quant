@@ -20,9 +20,13 @@ class MockApi:
     def get_account(self):
         return True
 
+class MockStrategy:
+    def getOrders(self):
+        return [True]
+
 class TestExecutor:
     def before_each(self):
-        self.e = Executor('test')
+        self.e = Executor('test', MockStrategy())
         self.e.setApi(MockApi())
     
     def test_buy(self):

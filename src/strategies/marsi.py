@@ -7,7 +7,7 @@ from ..utility.utility import Utility
 class Marsi(AStrategy):
 
     def __init__(self, env, params):
-        super().__init__()
+        super().__init__(env, params)
         self.strategy_code = 'MAR'
 
     def getSmaIndication(self, current_price, current_sma, ticker):
