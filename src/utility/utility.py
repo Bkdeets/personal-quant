@@ -136,7 +136,7 @@ class Utility:
         for position in positions:
             for event in activities:
                     if event.symbol == position.symbol:
-                        if event.id.startsWith(strategy_code):
+                        if event.id.startswith(strategy_code):
                             strategy_positions.append(position)
         return strategy_positions
     
