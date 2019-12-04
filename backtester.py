@@ -1,29 +1,9 @@
-from src.executor import Executor
-from src.strategies.value_strategy import ValueStrategy
-from src.strategies.marsi import Marsi
-import concurrent.futures
-import threading
-macross_params = {
-    'period': 20,
-    'timeframe': '1Min',
-    'assets': [
-        'AAPL',
-        'TSLA',
-        'SIRI',
-        'F',
-        'BAC',
-        'RRR',
-        'GOOG',
-        'SNAP',
-        'GE',
-        'SPY',
-        'QQQ',
-        'ACB'
-    ]
-}
+from src.backtests.marsi_backtest import MarsiBacktest
+import pandas as pd
 
-
-sp5 = [
+start = pd.Timestamp.now() - pd.Timedelta(days=50)
+timeframe = 'minute'
+symbols = [
         'MMM', 'ABT', 'ABBV', 'ACN', 'ATVI', 'AYI', 'ADBE', 'AMD', 'AAP', 'AES', 'AET', 'AMG', 'AFL', 'A', 'APD', 'AKAM', 
         'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'AGN', 'ADS', 'LNT', 'ALL', 'GOOGL', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 
         'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'APC', 'ADI', 'ANDV', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AIV', 'AAPL', 'AMAT', 'APTV', 'ADM', 'ARNC', 'AJG', 
@@ -46,18 +26,7 @@ sp5 = [
         'TROW', 'TTWO', 'TPR', 'TGT', 'TEL', 'FTI', 'TXN', 'TXT', 'TMO', 'TIF', 'TWX', 'TJX', 'TMK', 'TSS', 'TSCO', 'TDG', 'TRV', 'TRIP', 'FOXA', 'FOX', 'TSN', 'UDR', 'ULTA', 'USB', 'UAA', 'UA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UTX', 'UHS', 'UNM', 'VFC', 
         'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VIAB', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'WELL', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YUM', 'ZBH', 'ZION', 'ZTS'
     ]
-
-test = ['SEE']
-
-value_params = {
-    'timeframe': 'day',
-    'assets': sp5,
-    'needs_prices': False,
-    'tp': .50,
-    'sl': .50
-}
-
-marsi_params = {
+params = {
     'sma':{
         'level': .005
     },
@@ -66,22 +35,19 @@ marsi_params = {
         'bottomLevel': 35
     },
     'sl':.05,
-    'period':30,
-    'assets': sp5,
-    'needs_prices': True,
-    'timeframe': 'minute'
+    'period':30
 }
+balance = 1000
 
-def rootHandler(strategies):
-    for strategy in strategies:
-        print('Strategy thread started')
-        e = Executor('paper', strategy)
-        x = threading.Thread(target=e.beginTrading)
-        x.start()
-
-rootHandler(
-    [
-        ValueStrategy('paper', value_params),
-        Marsi('paper', macross_params)
-    ]
-)
+print("ticker \t trades \t change")
+changes = []
+for symbol in symbols:
+    res = MarsiBacktest(params, symbol, start, timeframe, balance)
+    change = round(((res.balances[-1]-res.balances[0])/res.balances[0])*100,2)
+    changes.append(change)
+    print(
+        symbol + " \t " +
+        str(len(res.balances)-1) + " \t " + 
+        str(change) + "%"
+    )
+print(str(round(sum(changes),2))+"%")

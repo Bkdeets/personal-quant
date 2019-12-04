@@ -5,7 +5,7 @@ class MockObj(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 class MockApi:
-    def submit_order(self, symbol='AAPL', qty=1000, side='buy', type='market', time_in_force='day'):
+    def submit_order(self, symbol='AAPL', qty=1000, side='buy', type='market', time_in_force='day', client_order_id='2'):
         return [{'status':200}]
     def list_orders(self):
         return [{'status':200}]
@@ -19,10 +19,21 @@ class MockApi:
         return True
     def get_account(self):
         return True
+    def list_positions(self):
+        return []
+
+class MockStrategy:
+    strategy_code = 'test'
+    params = {
+        'timeframe': 'minute',
+        'assets': ['AAPL']
+    }
+    def getOrders(self):
+        return [True]
 
 class TestExecutor:
     def before_each(self):
-        self.e = Executor('test')
+        self.e = Executor('test', MockStrategy())
         self.e.setApi(MockApi())
     
     def test_buy(self):

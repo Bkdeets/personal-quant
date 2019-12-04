@@ -4,7 +4,7 @@ import time
 import alpaca_trade_api as tradeapi
 import os
 import threading
-
+import uuid 
 
 class Executor:
     API = {}
@@ -14,7 +14,8 @@ class Executor:
         'day' : 30
     }
 
-    def __init__(self, env):
+    def __init__(self, env, strategy_instance):
+        self.strategy_instance = strategy_instance
         self.initApi(env)
     
     def getApi(self):
@@ -44,9 +45,20 @@ class Executor:
             qty=units,
             side='buy',
             type='market',
-            time_in_force='day')
+            time_in_force='day',
+            client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
+
+    def filterExistingPositions(self, orders, side):
+        positions = self.API.list_positions()
+        holdings = {p.symbol: p for p in positions}
+        holding_symbols = list(holdings.keys())
+        if side == 'buy':
+            return [order for order in orders if order.get('symbol') not in holding_symbols]
+        elif side == 'sell':
+            return [order for order in orders if order.get('symbol') in holding_symbols]
 
     def bulkBuy(self, buys, wait=30):
+        buys = self.filterExistingPositions(buys, 'buy')
         for order in buys:
             try:
                 logging.info(f'submit(buy): {order}')
@@ -66,16 +78,17 @@ class Executor:
             time.sleep(1)
             count -= 1
 
-
     def sell(self, ticker, order_type, units, limit_price=None):
         return self.API.submit_order(
             symbol=ticker,
             qty=units,
             side='sell',
             type=order_type,
-            time_in_force='day',)
+            time_in_force='day',
+            client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
 
     def bulkSell(self, sells, wait=30):
+        sells = self.filterExistingPositions(sells, 'sell')
         for order in sells:
             try:
                 logging.info(f'submit(sell): {order}')
@@ -102,7 +115,8 @@ class Executor:
         buys = [o for o in orders if o['side'] == 'buy']
         self.bulkBuy(buys, wait=wait)
 
-    def get_prices(self, symbols, timeframe, start, end=None, limit=50, tz='America/New_York'):
+                        
+    def get_prices(self, start, end=None, limit=50, tz='America/New_York'):
         '''
         Gets prices for list of symbols and returns a pandas df
 
@@ -113,16 +127,17 @@ class Executor:
         2019-06-21 11:55:00-04:00  199.850  199.980  199.810  ...  28.410  28.435   6169
         '''
 
+        timeframe=self.strategy_instance.params.get('timeframe')
         if not end:
             end = pd.Timestamp.now(tz=tz)
 
         # The maximum number of symbols we can request at once is 200.
         barset = None
         i = 0
-        while i <= len(symbols) - 1:
+        while i <= len(self.strategy_instance.params.get('assets')) - 1:
             if barset is None:
                 barset = self.API.get_barset(
-                    symbols[i:i+200],
+                    self.strategy_instance.params.get('assets')[i:i+200],
                     timeframe,
                     limit=limit,
                     start=start,
@@ -130,7 +145,7 @@ class Executor:
             else:
                 barset.update(
                     self.API.get_barset(
-                        symbols[i:i+200],
+                        self.strategy_instance.params.get('assets')[i:i+200],
                         timeframe,
                         limit=limit,
                         start=start,
@@ -140,28 +155,23 @@ class Executor:
         # Turns barset into a df
         return barset.df
 
-    def beginTrading(self, strategy_instance):
+    def beginTrading(self):
         logging.info('start running')
-        sleep = self.timeframe_map.get(strategy_instance.params.get('timeframe'))
+        sleep = self.timeframe_map.get(self.strategy_instance.params.get('timeframe'))
 
         while True:
             clock = self.API.get_clock()
             if clock.is_open:
-                tradeable_assets = strategy_instance.params.get('assets')
-
-                if strategy_instance.params.get('needs_prices'):
+                if self.strategy_instance.params.get('needs_prices'):
                     logging.info('Getting prices...')
                     start = pd.Timestamp.now() - pd.Timedelta(days=2)
-                    prices_df = self.get_prices(
-                        tradeable_assets,
-                        timeframe=strategy_instance.params.get('timeframe'),
-                        start=start)
+                    prices_df = self.get_prices(start=start)
                     
                     logging.info('Getting orders...')
-                    orders = strategy_instance.get_orders(prices_df)
+                    orders = self.strategy_instance.get_orders(prices_df)
                 else:
                     logging.info('Getting orders...')
-                    orders = strategy_instance.get_orders()
+                    orders = self.strategy_instance.get_orders()
 
                 logging.info(orders)
                 self.trade(orders)

@@ -1,12 +1,12 @@
 
 from datetime import datetime, timedelta
-import polygon as p
+from ..wrappers import polygon as p
 
 import os
 import statistics
 import math
 from iexfinance.stocks import Stock
-from src.utility import Utility
+from ..utility.utility import Utility
 
 KEY = os.getenv('APCA_API_SECRET_KEY')
 ID = os.getenv('APCA_API_KEY_ID')
