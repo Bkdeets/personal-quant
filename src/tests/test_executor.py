@@ -25,7 +25,8 @@ class MockApi:
 class MockStrategy:
     strategy_code = 'test'
     params = {
-        'timeframe': 'minute'
+        'timeframe': 'minute',
+        'assets': ['AAPL']
     }
     def getOrders(self):
         return [True]
