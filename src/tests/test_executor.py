@@ -5,7 +5,7 @@ class MockObj(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 class MockApi:
-    def submit_order(self, symbol='AAPL', qty=1000, side='buy', type='market', time_in_force='day'):
+    def submit_order(self, symbol='AAPL', qty=1000, side='buy', type='market', time_in_force='day', client_order_id='2'):
         return [{'status':200}]
     def list_orders(self):
         return [{'status':200}]
