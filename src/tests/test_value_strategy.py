@@ -116,7 +116,7 @@ class TestValueStrategy:
             d1 = today.strftime('%Y-%m-%d')
             obj = MockObj(
                 symbol='AAPL',
-                transaction_time=d1+' blahblah'
+                transaction_time=d1+' blahblah',
                 id='3')
             return [obj]
         api = MockApi()
