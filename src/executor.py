@@ -46,7 +46,7 @@ class Executor:
             side='buy',
             type='market',
             time_in_force='day',
-            client_order_id=self.strategy_instance.strategy_code+uuid.uuid1())
+            client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
 
     def filterExistingPositions(self, orders, side):
         positions = self.API.list_positions()
@@ -85,7 +85,7 @@ class Executor:
             side='sell',
             type=order_type,
             time_in_force='day',
-            client_order_id=self.strategy_instance.strategy_code+uuid.uuid1())
+            client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
 
     def bulkSell(self, sells, wait=30):
         sells = self.filterExistingPositions(sells, 'sell')

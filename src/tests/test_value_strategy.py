@@ -110,7 +110,7 @@ class TestValueStrategy:
         }
         self.beforeEach(params=params)
         def list_positions():
-            return [MockObj(symbol='AAPL')]
+            return [MockObj(symbol='AAPL', id='2')]
         def mock_get_activities_new(activity_types='FILL'):
             today = datetime.date.today()
             d1 = today.strftime('%Y-%m-%d')

@@ -19,9 +19,14 @@ class MockApi:
         return True
     def get_account(self):
         return True
+    def list_positions(self):
+        return []
 
 class MockStrategy:
     strategy_code = 'test'
+    params = {
+        'timeframe': 'minute'
+    }
     def getOrders(self):
         return [True]
 
