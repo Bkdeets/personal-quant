@@ -53,9 +53,9 @@ class Executor:
         holdings = {p.symbol: p for p in positions}
         holding_symbols = list(holdings.keys())
         if side == 'buy':
-            return [order for order in orders if order[0] not in holding_symbols]
+            return [order for order in orders if order.get('symbol') not in holding_symbols]
         elif side == 'sell':
-            return [order for order in orders if order[0] in holding_symbols]
+            return [order for order in orders if order.get('symbol') in holding_symbols]
 
     def bulkBuy(self, buys, wait=30):
         buys = self.filterExistingPositions(buys, 'buy')
