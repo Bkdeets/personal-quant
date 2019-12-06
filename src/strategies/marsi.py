@@ -77,7 +77,7 @@ class Marsi(AStrategy):
 
         shares = avail_cap//price
 
-        if account.buying_power > shares*price:
+        if account.buying_power >= shares*price:
             return shares
         else:
             return account.buying_power//price
@@ -117,29 +117,30 @@ class Marsi(AStrategy):
         return None
         
 
-    def get_orders(self, position_size=.02, prices_df=[]):
+    def get_orders(self, position_size=.02, prices_df={}):
         orders = []
-        for ticker in self.params.get('assets'):
-            current_price = p.get_current_price(ticker)
-            sma = SMA(self.params.get('period'), prices_df[ticker], ticker)
-            rsi = RSI(self.params.get('period'), prices_df[ticker], ticker)
-            current_sma = sma.smas[-1]
+        if prices_df:
+            for ticker in self.params.get('assets'):
+                current_price = p.get_current_price(ticker)
+                sma = SMA(self.params.get('period'), prices_df.get('ticker'), ticker)
+                rsi = RSI(self.params.get('period'), prices_df.get('ticker'), ticker)
+                current_sma = sma.smas[-1]
 
-            self.params['sma']['level'] = sma.apds[-1][0] + sma.apds[-1][1]
-            current_rsi = rsi.rsis[-1]
+                self.params['sma']['level'] = sma.apds[-1][0] + sma.apds[-1][1]
+                current_rsi = rsi.rsis[-1]
 
-            smaIndication = self.getSmaIndication(current_price, current_sma, ticker)
-            rsiIndication = self.getRsiIndication(current_price, current_rsi, ticker)
-            current_side = Utility().getCurrentSide(self.strategy_code, ticker, self.API)
+                smaIndication = self.getSmaIndication(current_price, current_sma, ticker)
+                rsiIndication = self.getRsiIndication(current_price, current_rsi, ticker)
+                current_side = Utility().getCurrentSide(self.strategy_code, ticker, self.API)
 
-            order = self.getIndicationOrder(
-                smaIndication, 
-                rsiIndication, 
-                current_side, 
-                position_size, 
-                ticker,
-                current_price)
-            if order:
-                orders.append(order)
+                order = self.getIndicationOrder(
+                    smaIndication, 
+                    rsiIndication, 
+                    current_side, 
+                    position_size, 
+                    ticker,
+                    current_price)
+                if order:
+                    orders.append(order)
 
         return orders

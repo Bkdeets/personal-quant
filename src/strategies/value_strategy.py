@@ -13,6 +13,7 @@ class ValueStrategy(AStrategy):
     API = {}
     
     def __init__(self, env, params):
+        super().__init__(env, params)
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.DEBUG)
         self.NY = 'America/New_York'
