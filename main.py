@@ -73,11 +73,14 @@ marsi_params = {
 }
 
 def rootHandler(strategies):
+    jobs = []
     for strategy in strategies:
         print('Strategy thread started')
         e = Executor('paper', strategy)
-        x = threading.Thread(target=e.beginTrading)
-        x.start()
+        thread = threading.Thread(target=e.beginTrading)
+        jobs.append(thread)
+    for job in jobs:
+        job.start()
 
 rootHandler(
     [
