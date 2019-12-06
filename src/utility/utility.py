@@ -187,4 +187,3 @@ class Utility:
 
         return barset.df
 
-
