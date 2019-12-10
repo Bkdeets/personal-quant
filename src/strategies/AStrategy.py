@@ -11,7 +11,7 @@ class AStrategy(ABC):
         logging.basicConfig(level=logging.DEBUG)
         self.NY = 'America/New_York'
 
-        if env == 'test':
+        if env == 'test' or env == 'backtest':
             self.API = {}
         elif env == 'paper':
             self.API = tradeapi.REST(

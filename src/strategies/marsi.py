@@ -77,10 +77,10 @@ class Marsi(AStrategy):
 
         shares = avail_cap//price
 
-        if account.buying_power >= shares*price:
+        if account.daytrading_buying_power >= shares*price:
             return shares
         else:
-            return account.buying_power//price
+            return account.daytrading_buying_power//price
 
     
     def getIndicationOrder(self, smaIndication, rsiIndication, side, position_size, ticker, current_price):
@@ -115,7 +115,6 @@ class Marsi(AStrategy):
                         'stop': current_price * (1+self.params.get('sl'))
                     }
         return None
-        
 
     def get_orders(self, position_size=.02, prices_df={}):
         orders = []
