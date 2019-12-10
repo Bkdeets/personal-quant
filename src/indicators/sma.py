@@ -12,8 +12,8 @@ class SMA:
     def calculate(self):
         for i in range(1,len(self.prices.index)):
             if i > self.period:
-                sma = st.mean([row[-2] for index, row in self.prices.iloc[i - self.period:i, :].iterrows()])
-                price = self.prices.iloc[i,:][-2]
+                sma = st.mean([price for price in self.prices[i - self.period:i]])
+                price = self.prices[i]
                 self.distances.append(abs((price-sma)/sma))
                 apd = st.mean([distance for distance in self.distances[i-self.period:i]])
                 stdev = st.stdev([distance for distance in self.distances[i-self.period:i]])

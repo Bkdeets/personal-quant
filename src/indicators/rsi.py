@@ -19,7 +19,7 @@ class RSI:
         losses = []
 
         for i in range(1, self.period):
-            change = float(self.prices.iloc[i,:][-2]) - float(self.prices.iloc[i-1,:][-2])
+            change = float(self.prices[i]) - float(self.prices[i-1])
 
             if (change >= 0):
                 gains.append(change)
@@ -60,7 +60,7 @@ class RSI:
         self.avgsol = nah[2]
 
         for i in range(2, len(self.prices)):
-            change = float(self.prices.iloc[i,:][-2]) - float(self.prices.iloc[i - 1,:][-2])
+            change = float(self.prices[i]) - float(self.prices[i-1])
             if i == self.period:
                 self.rsis.append(100 - (100 / (1 + RS)))
             elif i > self.period:
