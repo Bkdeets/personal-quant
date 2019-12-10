@@ -122,8 +122,8 @@ class Marsi(AStrategy):
         if prices_df:
             for ticker in self.params.get('assets'):
                 current_price = p.get_current_price(ticker)
-                sma = SMA(self.params.get('period'), prices_df.get('ticker'), ticker)
-                rsi = RSI(self.params.get('period'), prices_df.get('ticker'), ticker)
+                sma = SMA(self.params.get('period'), prices_df.get(ticker).get('close'), ticker)
+                rsi = RSI(self.params.get('period'), prices_df.get(ticker).get('close'), ticker)
                 current_sma = sma.smas[-1]
 
                 self.params['sma']['level'] = sma.apds[-1][0] + sma.apds[-1][1]
@@ -142,5 +142,4 @@ class Marsi(AStrategy):
                     current_price)
                 if order:
                     orders.append(order)
-
         return orders

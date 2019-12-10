@@ -61,20 +61,20 @@ class Executor:
         buys = self.filterExistingPositions(buys, 'buy')
         for order in buys:
             try:
-                logging.info(f'submit(buy): {order}')
+                logging.info(f'{self.strategy_instance.strategy_code} : submit(buy): {order}')
                 self.buy(
                     order['symbol'],
                     'market',
                     order['qty'])
             except Exception as e:
-                logging.error(e)
+                logging.error(f'{self.strategy_instance.strategy_code} : {e}')
         count = wait
         while count > 0 and len(buys) > 0:
             pending = self.API.list_orders()
             if len(pending) == 0:
-                logging.info(f'all buy orders done')
+                logging.info(f'{self.strategy_instance.strategy_code} : all buy orders done')
                 break
-            logging.info(f'{len(pending)} buy orders pending...')
+            logging.info(f'{self.strategy_instance.strategy_code} : {len(pending)} buy orders pending...')
             time.sleep(1)
             count -= 1
 
@@ -91,20 +91,20 @@ class Executor:
         sells = self.filterExistingPositions(sells, 'sell')
         for order in sells:
             try:
-                logging.info(f'submit(sell): {order}')
+                logging.info(f'{self.strategy_instance.strategy_code} : submit(sell): {order}')
                 self.sell(
                     order['symbol'],
                     'market',
                     order['qty'])
             except Exception as e:
-                logging.error(e)
+                logging.error(f'{self.strategy_instance.strategy_code} : {e}')
         count = wait
         while count > 0 and len(sells) > 0:
             pending = self.API.list_orders()
             if len(pending) == 0:
-                logging.info(f'all sell orders done')
+                logging.info(f'{self.strategy_instance.strategy_code} : all sell orders done')
                 break
-            logging.info(f'{len(pending)} sell orders pending...')
+            logging.info(f'{self.strategy_instance.strategy_code} : {len(pending)} sell orders pending...')
             time.sleep(1)
             count -= 1
 
@@ -156,26 +156,28 @@ class Executor:
         return barset.df
 
     def beginTrading(self):
-        logging.info('start running')
+        logging.info(f'{self.strategy_instance.strategy_code} : start running')
         sleep = self.timeframe_map.get(self.strategy_instance.params.get('timeframe'))
 
         while True:
             clock = self.API.get_clock()
             if clock.is_open:
                 if self.strategy_instance.params.get('needs_prices'):
-                    logging.info('Getting prices...')
+                    logging.info(f'{self.strategy_instance.strategy_code} : Getting prices...')
                     start = pd.Timestamp.now() - pd.Timedelta(days=2)
                     prices_df = self.get_prices(start=start)
                     
-                    logging.info('Getting orders...')
+                    logging.info(f'{self.strategy_instance.strategy_code} : Getting orders...')
                     orders = self.strategy_instance.get_orders(prices_df)
                 else:
-                    logging.info('Getting orders...')
+                    logging.info(f'{self.strategy_instance.strategy_code} : Getting orders...')
                     orders = self.strategy_instance.get_orders()
 
-                logging.info(orders)
+                logging.info(f'{self.strategy_instance.strategy_code} : orders {orders}')
                 self.trade(orders)
+                logging.info(self.strategy_instance.strategy_code)
                 logging.info(self.API.get_account())
-                logging.info(f'done for {clock.timestamp}')
-
+                logging.info(f'{self.strategy_instance.strategy_code} : done for {clock.timestamp}')
+            else:
+                time.sleep(60 * 10)
             time.sleep(60 * sleep)
