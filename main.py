@@ -75,7 +75,7 @@ marsi_params = {
 def rootHandler(strategies):
     jobs = []
     for strategy in strategies:
-        print('Strategy thread started')
+        print(f':{strategy.strategy_code} : Strategy thread started')
         e = Executor('paper', strategy)
         thread = threading.Thread(target=e.beginTrading)
         jobs.append(thread)
@@ -84,7 +84,6 @@ def rootHandler(strategies):
 
 rootHandler(
     [
-        ValueStrategy('paper', value_params),
         Marsi('paper', macross_params)
     ]
 )
