@@ -84,6 +84,6 @@ def rootHandler(strategies):
 
 rootHandler(
     [
-        Marsi('paper', macross_params)
+        Marsi('paper', marsi_params)
     ]
 )
