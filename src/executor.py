@@ -158,6 +158,8 @@ class Executor:
     def beginTrading(self):
         logging.info(f'{self.strategy_instance.strategy_code} : start running')
         sleep = self.timeframe_map.get(self.strategy_instance.params.get('timeframe'))
+		if sleep == 'minute':
+			sleep = 1
 
         while True:
             clock = self.API.get_clock()
