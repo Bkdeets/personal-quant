@@ -30,10 +30,10 @@ class Marsi(AStrategy):
                     indication = 'exit'
                     return indication
         else:
-            if isPriceGreater and isDistanceGreaterThanLevel:
+            if not isPriceGreater and isDistanceGreaterThanLevel:
                 indication = 'buy'
                 return indication
-            elif not isPriceGreater and isDistanceGreaterThanLevel:
+            elif isPriceGreater and isDistanceGreaterThanLevel:
                 indication = 'short'
                 return indication
         return indication
@@ -84,7 +84,7 @@ class Marsi(AStrategy):
 
     
     def getIndicationOrder(self, smaIndication, rsiIndication, side, position_size, ticker, current_price):
-        if smaIndication == 'exit' or rsiIndication == 'exit' and side:
+        if smaIndication == 'exit' or rsiIndication == 'exit':
             if side == 'long':
                 return {
                     'symbol': ticker,
