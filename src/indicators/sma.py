@@ -10,8 +10,8 @@ class SMA:
         self.calculate()
 
     def calculate(self):
-        for i in range(1,len(self.prices.index)):
-            if i > self.period:
+        for i in range(0,len(self.prices)):
+            if i >= self.period:
                 sma = st.mean([price for price in self.prices[i - self.period:i]])
                 price = self.prices[i]
                 self.distances.append(abs((price-sma)/sma))

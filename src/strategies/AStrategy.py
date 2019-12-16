@@ -10,9 +10,10 @@ class AStrategy(ABC):
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.DEBUG)
         self.NY = 'America/New_York'
+        self.env = env
 
         if env == 'test' or env == 'backtest':
-            self.API = {}
+            self.API = params.get('API')
         elif env == 'paper':
             self.API = tradeapi.REST(
                 key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
