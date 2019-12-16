@@ -142,12 +142,13 @@ class Utility:
     
     def getCurrentSide(self, strategy_code, ticker, API):
         positions = Utility().getPositionsByStrategy(strategy_code, API)
-        position = [p for p in positions if p.symbol == ticker]
-        return position.side
+        if positions:
+            position = [p for p in positions if p.symbol == ticker][0]
+            return position.side
     
     def getPosition(self, strategy_code, ticker, API):
         positions = Utility().getPositionsByStrategy(strategy_code, API)
-        position = [p for p in positions if p.symbol == ticker]
+        position = [p for p in positions if p.symbol == ticker][0]
         return position
 
     def get_prices(self, start, timeframe, assets, API, end=None, limit=50, tz='America/New_York'):

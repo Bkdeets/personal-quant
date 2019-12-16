@@ -21,7 +21,7 @@ class Marsi(AStrategy):
         
         if ticker in holding_symbols:
             position = holdings.get(ticker)
-            if position.get('side') == 'long':
+            if position.side == 'long':
                 if isPriceGreater and isDistanceGreaterThanLevel:
                     indication = 'exit'
                     return indication
@@ -52,7 +52,7 @@ class Marsi(AStrategy):
 
         if ticker in holding_symbols:
             position = holdings.get(ticker)
-            if position.get('side') == 'long':
+            if position.side == 'long':
                 if isShort:
                     indication = 'exit'
                     return indication
@@ -104,7 +104,7 @@ class Marsi(AStrategy):
                         'symbol': ticker,
                         'qty': shares,
                         'side': 'buy',
-                        'stop': current_price * (self.params.get('sl')-1)
+                        'stop': abs(current_price * (self.params.get('sl')-1))
                     }
             elif smaIndication == 'short' and rsiIndication == 'short':
                 shares = self.getShares(current_price, position_size)
@@ -116,17 +116,17 @@ class Marsi(AStrategy):
                     }
         return None
 
-    def get_orders(self, position_size=.02, prices_df={}):
+    def get_orders(self, current_price=0, position_size=.05, prices_df={}):
         orders = []
-        if prices_df:
+        if not prices_df.empty:
             for ticker in self.params.get('assets'):
-                current_price = p.get_current_price(ticker)
-                sma = SMA(self.params.get('period'), prices_df.get(ticker).get('close'), ticker)
-                rsi = RSI(self.params.get('period'), prices_df.get(ticker).get('close'), ticker)
-                current_sma = sma.smas[-1]
-
-                self.params['sma']['level'] = sma.apds[-1][0] + sma.apds[-1][1]
-                current_rsi = rsi.rsis[-1]
+                if not self.env == 'backtest':
+                    current_price = p.get_current_price(ticker)
+                self.sma = SMA(self.params.get('period'), prices_df.get(ticker).get('close'), ticker)
+                self.rsi = RSI(self.params.get('period'), prices_df.get(ticker).get('close'), ticker)
+                current_sma = self.sma.smas[-1]
+                self.params['sma']['level'] = self.sma.apds[-1][0] + self.sma.apds[-1][1]
+                current_rsi = self.rsi.rsis[-1]
 
                 smaIndication = self.getSmaIndication(current_price, current_sma, ticker)
                 rsiIndication = self.getRsiIndication(current_price, current_rsi, ticker)
