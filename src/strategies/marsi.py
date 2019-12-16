@@ -118,7 +118,7 @@ class Marsi(AStrategy):
 
     def get_orders(self, current_price=0, position_size=.05, prices_df={}):
         orders = []
-        if not prices_df.empty:
+        if prices_df and not prices_df.empty:
             for ticker in self.params.get('assets'):
                 if not self.env == 'backtest':
                     current_price = p.get_current_price(ticker)
