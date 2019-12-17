@@ -136,21 +136,16 @@ class Executor:
         barset = None
         i = 0
         while i <= len(self.strategy_instance.params.get('assets')) - 1:
-            if barset is None:
-                barset = self.API.get_barset(
+            temp_barset = self.API.get_barset(
                     self.strategy_instance.params.get('assets')[i:i+200],
                     timeframe,
                     limit=limit,
                     start=start,
                     end=end)
+            if barset is None:
+                barset = temp_barset
             else:
-                barset.update(
-                    self.API.get_barset(
-                        self.strategy_instance.params.get('assets')[i:i+200],
-                        timeframe,
-                        limit=limit,
-                        start=start,
-                        end=end))
+                barset.update(temp_barset)
             i += 200
 
         # Turns barset into a df
@@ -171,13 +166,15 @@ class Executor:
                     logging.info(f'{self.strategy_instance.strategy_code}: {prices_df.shape}')
                     
                     logging.info(f'{self.strategy_instance.strategy_code}: Getting orders...')
-                    orders = self.strategy_instance.get_orders(prices_df)
+                    orders = self.strategy_instance.get_orders(prices_df=prices_df)
                 else:
                     logging.info(f'{self.strategy_instance.strategy_code}: Getting orders...')
                     orders = self.strategy_instance.get_orders()
 
                 logging.info(f'{self.strategy_instance.strategy_code}: orders {orders}')
+                
                 self.trade(orders)
+                
                 logging.info(self.strategy_instance.strategy_code)
                 logging.info(self.API.get_account())
                 logging.info(f'{self.strategy_instance.strategy_code}: done for {clock.timestamp}')
