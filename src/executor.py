@@ -164,21 +164,24 @@ class Executor:
             clock = self.API.get_clock()
             if clock.is_open:
                 if self.strategy_instance.params.get('needs_prices'):
-                    logging.info(f'{self.strategy_instance.strategy_code} : Getting prices...')
+                    logging.info(f'{self.strategy_instance.strategy_code}: Getting prices...')
                     start = pd.Timestamp.now() - pd.Timedelta(days=2)
                     prices_df = self.get_prices(start=start)
+
+                    logging.info(f'{self.strategy_instance.strategy_code}: {prices_df.shape}')
                     
-                    logging.info(f'{self.strategy_instance.strategy_code} : Getting orders...')
+                    logging.info(f'{self.strategy_instance.strategy_code}: Getting orders...')
                     orders = self.strategy_instance.get_orders(prices_df)
                 else:
-                    logging.info(f'{self.strategy_instance.strategy_code} : Getting orders...')
+                    logging.info(f'{self.strategy_instance.strategy_code}: Getting orders...')
                     orders = self.strategy_instance.get_orders()
 
-                logging.info(f'{self.strategy_instance.strategy_code} : orders {orders}')
+                logging.info(f'{self.strategy_instance.strategy_code}: orders {orders}')
                 self.trade(orders)
                 logging.info(self.strategy_instance.strategy_code)
                 logging.info(self.API.get_account())
-                logging.info(f'{self.strategy_instance.strategy_code} : done for {clock.timestamp}')
+                logging.info(f'{self.strategy_instance.strategy_code}: done for {clock.timestamp}')
+                logging.info(f'{self.strategy_instance.strategy_code}: waiting for {sleep}')
             else:
                 time.sleep(60 * 10)
             time.sleep(60 * sleep)
