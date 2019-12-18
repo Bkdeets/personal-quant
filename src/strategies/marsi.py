@@ -12,32 +12,34 @@ class Marsi(AStrategy):
         self.strategy_code = 'MAR'
 
     def getSmaIndication(self, current_price, current_sma, ticker):
-        positions = Utility().getPositionsByStrategy(self.strategy_code, self.API)
-        holdings = {p.symbol: p for p in positions}
-        holding_symbols = list(holdings.keys())
-        indication = None
+        if current_price:
+            positions = Utility().getPositionsByStrategy(self.strategy_code, self.API)
+            holdings = {p.symbol: p for p in positions}
+            holding_symbols = list(holdings.keys())
+            indication = None
 
-        isPriceGreater = current_price > current_sma
-        isDistanceGreaterThanLevel = abs((current_price-current_sma)/current_sma) > self.params.get('sma').get('level') 
-        
-        if ticker in holding_symbols:
-            position = holdings.get(ticker)
-            if position.side == 'long':
-                if isPriceGreater and isDistanceGreaterThanLevel:
-                    indication = 'exit'
-                    return indication
+            isPriceGreater = current_price > current_sma
+            isDistanceGreaterThanLevel = abs((current_price-current_sma)/current_sma) > self.params.get('sma').get('level') 
+            
+            if ticker in holding_symbols:
+                position = holdings.get(ticker)
+                if position.side == 'long':
+                    if isPriceGreater and isDistanceGreaterThanLevel:
+                        indication = 'exit'
+                        return indication
+                else:
+                    if not isPriceGreater and isDistanceGreaterThanLevel:
+                        indication = 'exit'
+                        return indication
             else:
                 if not isPriceGreater and isDistanceGreaterThanLevel:
-                    indication = 'exit'
+                    indication = 'buy'
                     return indication
-        else:
-            if not isPriceGreater and isDistanceGreaterThanLevel:
-                indication = 'buy'
-                return indication
-            elif isPriceGreater and isDistanceGreaterThanLevel:
-                indication = 'short'
-                return indication
-        return indication
+                elif isPriceGreater and isDistanceGreaterThanLevel:
+                    indication = 'short'
+                    return indication
+            return indication
+        return None
 
     def getRsiIndication(self, current_price, current_rsi, ticker):
         positions = Utility().getPositionsByStrategy(self.strategy_code, self.API)
