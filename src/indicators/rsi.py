@@ -1,10 +1,8 @@
+import logging
 class RSI:
     def __init__(self, period, prices, ticker):
         self.period = period
-        self.prices = prices
-
-        logging.info(f'MAR: RSI: {prices}')
-        logging.info(f'MAR: RSI: {period}')
+        self.prices = prices.fillna(method='ffill')
         self.ticker = ticker
         self.rsis = [0 for x in range(0, period+1)]
         self.avgsog = 0
