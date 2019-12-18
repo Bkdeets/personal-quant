@@ -4,7 +4,7 @@ class RSI:
         self.period = period
         self.prices = prices.fillna(method='ffill')
         self.ticker = ticker
-        self.rsis = [0 for x in range(0, period+1)]
+        self.rsis = []
         self.avgsog = 0
         self.avgsol = 0
         self.calculate()
