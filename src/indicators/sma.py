@@ -1,8 +1,12 @@
 import statistics as st
+import logging
 class SMA:
     def __init__(self, period, prices, ticker):
         self.period = period
         self.prices = prices
+
+        logging.info(f'MAR: SMA: {prices}')
+        logging.info(f'MAR: SMA: {period}')
         self.ticker = ticker
         self.smas = [0 for x in range(0, period+1)]
         self.apds = [0 for x in range(0, period+1)]
