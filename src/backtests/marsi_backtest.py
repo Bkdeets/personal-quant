@@ -6,7 +6,7 @@ from ..utility.utility import Utility
 from ..indicators.sma import SMA
 from ..indicators.rsi import RSI
 import matplotlib.pyplot as plt
-
+import pprint
 
 class MarsiBacktest():
     API = tradeapi.REST(
@@ -18,10 +18,11 @@ class MarsiBacktest():
         self.params = params
         self.symbol = symbol
         self.data = Utility().get_prices(start, timeframe, [symbol], self.API, limit=1000)
+        pprint.pprint(self.data)
 
         period = params.get('period')
-        self.sma = SMA(period, self.data.get(symbol), symbol)
-        self.rsi = RSI(period, self.data.get(symbol), symbol)
+        self.sma = SMA(period, self.data.get(symbol).get('close'), symbol)
+        self.rsi = RSI(period, self.data.get(symbol).get('close'), symbol)
 
         self.balance = balance
         self.position = {
@@ -170,23 +171,23 @@ class MarsiBacktest():
             else:
                 actions.append(None)
 
-        # fig, axs = plt.subplots(2, 1)
+        fig, axs = plt.subplots(2, 1)
 
-        # axs[0].plot(close_prices)
-        # axs[0].plot(self.sma.smas[self.params.get('period')+1:])
-        # axs[1].plot(self.rsi.rsis[self.params.get('period')+1:])
+        axs[0].plot(close_prices)
+        axs[0].plot(self.sma.smas[self.params.get('period')+1:])
+        axs[1].plot(self.rsi.rsis[self.params.get('period')+1:])
 
-        # for i in range(0,len(actions)):
-        #     action = actions[i]
-        #     if action == 'si':
-        #         axs[0].plot(i, close_prices[i], "b+")
-        #     elif action == 'so':
-        #         axs[0].plot(i, close_prices[i], "r+")
-        #     elif action == 'li':
-        #         axs[0].plot(i, close_prices[i], "gx")
-        #     elif action == 'lo':
-        #         axs[0].plot(i, close_prices[i], "rx")
+        for i in range(0,len(actions)):
+            action = actions[i]
+            if action == 'si':
+                axs[0].plot(i, close_prices[i], "b+")
+            elif action == 'so':
+                axs[0].plot(i, close_prices[i], "r+")
+            elif action == 'li':
+                axs[0].plot(i, close_prices[i], "gx")
+            elif action == 'lo':
+                axs[0].plot(i, close_prices[i], "rx")
 
-        # plt.show()
+        plt.show()
 
         return balances

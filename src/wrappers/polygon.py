@@ -12,7 +12,11 @@ def make_request(endpoint, ticker, params):
         url,
         params=params
     )
-    return response.json()
+    try:
+        res = response.json()
+        return res
+    except:
+        return None
 
 def get_fundamentals(ticker, limit=2):
     endpoint = 'v2/reference/financials/'
