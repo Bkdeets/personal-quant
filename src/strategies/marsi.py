@@ -141,10 +141,8 @@ class Marsi(AStrategy):
 
                 smaIndication = self.getSmaIndication(current_price, current_sma, ticker)
                 rsiIndication = self.getRsiIndication(current_price, current_rsi, ticker)
-                
-                logging.info(f'{self.strategy_code}: SMA: {self.sma.smas}')
+
                 logging.info(f'{self.strategy_code}: SMA: {current_sma} Indication: {smaIndication}')
-                logging.info(f'{self.strategy_code}: RSI: {self.rsi.rsis}')
                 logging.info(f'{self.strategy_code}: RSI: {current_rsi} Indication: {rsiIndication}')
 
                 current_side = Utility().getCurrentSide(self.strategy_code, ticker, self.API)
