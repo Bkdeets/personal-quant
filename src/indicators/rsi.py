@@ -2,18 +2,12 @@ import logging
 class RSI:
     def __init__(self, period, prices, ticker):
         self.period = period
-        self.prices = prices.fillna(method='ffill')
+        self.prices = prices
         self.ticker = ticker
-        self.rsis = []
+        self.rsis = [0 for i in range(0, self.period)]
         self.avgsog = 0
         self.avgsol = 0
         self.calculate()
-
-    def sumList(self,list):
-        sm = 0
-        for i in list:
-            sm += i
-        return sm
 
     def initRS(self):
         gains = []
@@ -28,8 +22,8 @@ class RSI:
             else:
                 losses.append(-change)
 
-        AvgSog = self.sumList(gains) / self.period
-        AvgSol = self.sumList(losses) / self.period
+        AvgSog = sum(gains) / self.period
+        AvgSol = sum(losses) / self.period
         if AvgSol != 0:
             RS = AvgSog / AvgSol
         else:
@@ -68,7 +62,3 @@ class RSI:
                 self.updateRSI(change)
             else:
                 continue
-
-
-
-

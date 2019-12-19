@@ -128,14 +128,20 @@ class Marsi(AStrategy):
                 
                 logging.info(f'{self.strategy_code}: Getting orders for {ticker}')
 
-                self.sma = SMA(self.params.get('period'), prices_df.get(ticker).get('close'), ticker)
-                self.rsi = RSI(self.params.get('period'), prices_df.get(ticker).get('close'), ticker)
+                closes = prices_df.get(ticker).get('close').fillna(method='ffill')
+                list_of_prices = list(closes)
+
+                self.sma = SMA(self.params.get('period'), list_of_prices, ticker)
+                self.rsi = RSI(self.params.get('period'), list_of_prices, ticker)
+
                 current_sma = self.sma.smas[-1]
                 current_rsi = self.rsi.rsis[-1]
+
                 self.params['sma']['level'] = self.sma.apds[-1][0] + self.sma.apds[-1][1]
 
                 smaIndication = self.getSmaIndication(current_price, current_sma, ticker)
                 rsiIndication = self.getRsiIndication(current_price, current_rsi, ticker)
+                
                 logging.info(f'{self.strategy_code}: SMA: {self.sma.smas}')
                 logging.info(f'{self.strategy_code}: SMA: {current_sma} Indication: {smaIndication}')
                 logging.info(f'{self.strategy_code}: RSI: {self.rsi.rsis}')
