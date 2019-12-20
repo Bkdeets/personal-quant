@@ -79,10 +79,10 @@ class Marsi(AStrategy):
 
         shares = avail_cap//price
 
-        if account.daytrading_buying_power >= shares*price:
+        if float(account.daytrading_buying_power) >= shares*price:
             return shares
         else:
-            return account.daytrading_buying_power//price
+            return float(account.daytrading_buying_power)//price
     
     def getIndicationOrder(self, smaIndication, rsiIndication, side, position_size, ticker, current_price):
         if smaIndication == 'exit' or rsiIndication == 'exit':
