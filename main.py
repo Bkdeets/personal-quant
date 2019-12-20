@@ -67,7 +67,7 @@ marsi_params = {
     },
     'sl':.05,
     'period':30,
-    'assets': sp5,
+    'assets': ['AAPL','TSLA','BAC','F','RRR','SIRI','S','NFLX','GOOG','AMZN', 'HPQ', 'UBER', 'MCD'],
     'needs_prices': True,
     'timeframe': 'minute'
 }

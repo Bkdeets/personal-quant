@@ -74,7 +74,7 @@ class Marsi(AStrategy):
 
     def getShares(self, price, position_size):
         account = self.API.get_account()
-        value = account.cash + account.equity
+        value = float(account.cash) + float(account.equity)
         avail_cap = value * position_size
 
         shares = avail_cap//price
