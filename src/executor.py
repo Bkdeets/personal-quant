@@ -50,16 +50,18 @@ class Executor:
             client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
 
     def filterExistingPositions(self, orders, side):
+        orders = []
         positions = self.API.list_positions()
         holdings = {p.symbol: p for p in positions}
-        holding_symbols = list(holdings.keys())
-        if side == 'buy':
-            return [order for order in orders if order.get('symbol') not in holding_symbols]
-        elif side == 'sell':
-            return [order for order in orders if order.get('symbol') in holding_symbols]
+        for order in orders:
+            if holdings.get(order.symbol) and holdings.get(order.symbol).side != side:
+                orders.append(order)
+            elif not holdings.get(order.symbol):
+                orders.append(order)
+        return orders
 
     def bulkBuy(self, buys, wait=30):
-        # buys = self.filterExistingPositions(buys, 'buy')
+        buys = self.filterExistingPositions(buys, 'buy')
         for order in buys:
             try:
                 logging.info(f'{self.strategy_instance.strategy_code} : submit(buy): {order}')
@@ -89,7 +91,7 @@ class Executor:
             client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
 
     def bulkSell(self, sells, wait=30):
-        # sells = self.filterExistingPositions(sells, 'sell')
+        sells = self.filterExistingPositions(sells, 'sell')
         for order in sells:
             try:
                 logging.info(f'{self.strategy_instance.strategy_code} : submit(sell): {order}')
