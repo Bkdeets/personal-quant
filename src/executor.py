@@ -161,7 +161,7 @@ class Executor:
                 if self.strategy_instance.params.get('needs_prices'):
                     logging.info(f'{self.strategy_instance.strategy_code}: Getting prices...')
                     start = pd.Timestamp.now() - pd.Timedelta(days=2)
-                    prices_df = self.get_prices(start=start)
+                    prices_df = self.get_prices(start)
 
                     logging.info(f'{self.strategy_instance.strategy_code}: {prices_df.shape}')
                     
