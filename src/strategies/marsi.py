@@ -72,7 +72,6 @@ class Marsi(AStrategy):
                 return indication
         return indication
 
-    
     def getShares(self, price, position_size):
         account = self.API.get_account()
         value = account.cash + account.equity
@@ -84,7 +83,6 @@ class Marsi(AStrategy):
             return shares
         else:
             return account.daytrading_buying_power//price
-
     
     def getIndicationOrder(self, smaIndication, rsiIndication, side, position_size, ticker, current_price):
         if smaIndication == 'exit' or rsiIndication == 'exit':
@@ -131,7 +129,14 @@ class Marsi(AStrategy):
                 closes = prices_df.get(ticker).get('close').fillna(method='ffill')
                 list_of_prices = list(closes)
 
+                logging.info('prices before passing to indicators')
+                logging.info(list_of_prices)
+
                 self.sma = SMA(self.params.get('period'), list_of_prices, ticker)
+
+                logging.info('prices after passing to sma')
+                logging.info(list_of_prices)
+
                 self.rsi = RSI(self.params.get('period'), list_of_prices, ticker)
 
                 current_sma = self.sma.smas[-1]
