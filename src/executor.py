@@ -59,7 +59,7 @@ class Executor:
             return [order for order in orders if order.get('symbol') in holding_symbols]
 
     def bulkBuy(self, buys, wait=30):
-        buys = self.filterExistingPositions(buys, 'buy')
+        # buys = self.filterExistingPositions(buys, 'buy')
         for order in buys:
             try:
                 logging.info(f'{self.strategy_instance.strategy_code} : submit(buy): {order}')
@@ -89,7 +89,7 @@ class Executor:
             client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
 
     def bulkSell(self, sells, wait=30):
-        sells = self.filterExistingPositions(sells, 'sell')
+        # sells = self.filterExistingPositions(sells, 'sell')
         for order in sells:
             try:
                 logging.info(f'{self.strategy_instance.strategy_code} : submit(sell): {order}')
