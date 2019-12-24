@@ -39,7 +39,6 @@ class Executor:
                 secret_key=os.getenv('APCA_API_SECRET_KEY'),
                 base_url=os.getenv('APCA_API_BASE_URL'))
 
-
     def buy(self, ticker, order_type, units, limit_price=None):
         return self.API.submit_order(
             symbol=ticker,
@@ -50,15 +49,16 @@ class Executor:
             client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
 
     def filterExistingPositions(self, orders, side):
-        orders = []
+        filtered_orders = []
         positions = self.API.list_positions()
         holdings = {p.symbol: p for p in positions}
         for order in orders:
-            if holdings.get(order.symbol) and holdings.get(order.symbol).side != side:
-                orders.append(order)
-            elif not holdings.get(order.symbol):
-                orders.append(order)
-        return orders
+            relHolding = holdings.get(order.get('symbol'))
+            if relHolding and not relHolding.side == side:
+                filtered_orders.append(order)
+            elif not relHolding:
+                filtered_orders.append(order)
+        return filtered_orders
 
     def bulkBuy(self, buys, wait=30):
         buys = self.filterExistingPositions(buys, 'buy')
@@ -117,8 +117,7 @@ class Executor:
 
         buys = [o for o in orders if o['side'] == 'buy']
         self.bulkBuy(buys, wait=wait)
-
-                        
+                      
     def get_prices(self, start, end=None, limit=50, tz='America/New_York'):
         '''
         Gets prices for list of symbols and returns a pandas df
