@@ -1,15 +1,16 @@
-from src.backtests.marsi_backtest import MarsiBacktest
 from src.strategies.marsi import Marsi
+from src.strategies.longshort import LongShort
+from src.strategies.longshortML import LongShortML
 import pandas as pd
 import matplotlib.pyplot as plt
 import alpaca_trade_api as tradeapi
 import os
 import pprint
+
 class Account:
-    daytrading_buying_power = 0
     cash = 0
     equity = 0
-    portfolio_value = 0
+    buying_power = 0
     positions = []
     equities = []
     activities = []
@@ -83,62 +84,62 @@ class Backtester:
             i += 200
         return barset.df
 
+    def documentTrade(self, exited_position, isExit):
+        if exited_position.side == 'short':
+            position_side = 's'
+        else:
+            position_side = 'l'
+        if isExit:
+            trade_direction = 'o'
+        else:
+            trade_direction = 'i'
+        
+        action = position_side + trade_direction
+        
+        self.trades.append({
+            'action': action,
+            'price': self.currentPrice
+        })
+
     def trade(self, orders):
         for order in orders:
-            position = next(
-                (position for position in self.account.positions if position.symbol == order.get('symbol')), 
-                False
-            )
+            matched_position = False
+            for position in self.account.positions:
+                if position.symbol == order.get('symbol'):
+                    matched_position = position
 
-            if(position and position.side != self.po_map.get(order.get('side'))):
-                self.account.positions.remove(position)
-                self.account.cash += self.currentPrice * order.get('qty')
-                if position.side == 'short':
-                    self.trades.append({
-                        'action': 'so',
-                        'price': self.currentPrice
-                    })
+            isExit = matched_position and matched_position.side != self.po_map.get(order.get('side'))
+            if(matched_position and isExit):
+                self.account.positions.remove(matched_position)
+                if matched_position.side == 'long':
+                    self.account.cash += self.currentPrice * matched_position.qty
                 else:
-                    self.trades.append({
-                        'action': 'lo',
-                        'price': self.currentPrice
-                    })
-                continue
-
-            cost = self.currentPrice * order.get('qty')
-            if(cost < self.account.daytrading_buying_power):
-                position = Position(
-                    order.get('symbol'),
-                    self.po_map.get((order.get('side'))),
-                    order.get('qty'),
-                    self.currentPrice
-                )
-                self.account.positions.append(position)
-
-                rem = self.account.cash - cost
-                if(rem < 0):
-                    self.account.cash -= cost + rem
-                    self.account.daytrading_buying_power += rem
-                else:
+                    entryValue = matched_position.entryPrice * matched_position.qty
+                    exitValue = self.currentPrice * matched_position.qty
+                    value = entryValue - exitValue
+                    self.account.cash +=  (value + entryValue)
+                self.documentTrade(matched_position, isExit)
+            elif(not isExit and not matched_position):
+                cost = self.currentPrice * order.get('qty')
+                if(cost < self.account.cash):
+                    position = Position(
+                        order.get('symbol'),
+                        self.po_map.get((order.get('side'))),
+                        order.get('qty'),
+                        self.currentPrice
+                    )
+                    self.account.positions.append(position)
                     self.account.cash -= cost
-                self.account.activities.append(Activity(position.symbol, self.strategy_instance.strategy_code))
-                if position.side == 'short':
-                    self.trades.append({
-                        'action': 'si',
-                        'price': self.currentPrice
-                    })
-                else:
-                    self.trades.append({
-                        'action': 'li',
-                        'price': self.currentPrice
-                    })
+                    self.account.activities.append(Activity(position.symbol, self.strategy_instance.strategy_code))
+                    self.documentTrade(position, False)
         
     def setEquity(self):
         value = 0
         for position in self.account.positions:
-            if position.side == 'short':
+            if position.side == 'short' or position.side == 'sell':
                 entryValue = position.entryPrice * position.qty
-                value = (entryValue - (self.currentPrice * position.qty)) + entryValue
+                currentValue = self.currentPrice * position.qty
+                value = (entryValue - currentValue) + entryValue
             else:
                 value = self.currentPrice * position.qty
         self.account.equity = self.account.cash + value
@@ -161,50 +162,71 @@ class Backtester:
                     'side': 'buy'
                 })
         return closes
+    
+    def closeOpenPositions(self):
+        closes = []
+        for position in self.account.positions:
+            change = (self.currentPrice - position.entryPrice)/position.entryPrice
+            if position.side == 'long':
+                close_dir = 'sell'
+            elif position.side == 'short':
+                close_dir = 'buy'
+            closes.append({
+                'symbol': position.symbol,
+                'qty': position.qty,
+                'side': close_dir
+            })
+        self.trade(closes)
         
+    def syncBuyingPowerAndCash(self):
+        self.account.buying_power = self.account.cash
+
     def singleAssetBacktest(self, ticker):
         period = self.strategy_instance.params.get('period')
-        smas = [0 for i in range(0, period)]
-        rsis = [0 for i in range(0, period)]
-        start = pd.Timestamp.now() - pd.Timedelta(days=2)
+        start = pd.Timestamp.now() - pd.Timedelta(days=50)
         prices_df = self.get_prices(start)
         prices = list(prices_df.get(ticker).get('close'))
+        self.prices = prices
+        print((prices[-1]-prices[0])/prices[0])
+        plt.plot(prices)
+        plt.show()
         for i in range(period, len(prices)-1):
             self.currentPrice = prices[i]
             self.setEquity()
+            if self.strategy_instance.params.get('closeEOD'):
+                self.closeOpenPositions()
+
             df_chunk = prices_df.iloc[i - period:i+1,]
             orders = self.strategy_instance.get_orders(current_price=self.currentPrice, prices_df=df_chunk)
-            smas.append(self.strategy_instance.sma.smas[-1])
-            rsis.append(self.strategy_instance.rsi.rsis[-1])
             if orders:
                 orders.extend(self.getSLTPCloses())
-                print(orders)
+                print(f'orders: {orders}')
+                print(f'positions: {self.account.positions}')
                 self.trade(orders)
             else:
                 self.trades.append(None)
+            self.syncBuyingPowerAndCash()
                 
         # fig, axs = plt.subplots(2, 1)
 
-        # # axs[0].plot(prices[period:])
-        # # axs[0].plot(smas[period:])
-        # # axs[1].plot(rsis[period:])
-        # axs[0].plot(self.account.equities)
+        # axs[0].plot(prices[period:])
+        # # # axs[0].plot(smas[period:])
+        # # # axs[1].plot(rsis[period:])
+        # # axs[0].plot(self.account.equities)
 
-
-        for i in range(0,len(self.trades)):
-            trade = self.trades[i]
-            if trade:
-                action = trade.get('action')
-                price = trade.get('price')
-                icon_map = {
-                    'si': 'b+',
-                    'so': 'r+',
-                    'li': 'gx',
-                    'lo': 'rx'
-                }
-                # axs[0].plot(i, price, icon_map.get(action))
-
-        plt.show()
+        # for i in range(0,len(self.trades)):
+        #     trade = self.trades[i]
+        #     if trade:
+        #         action = trade.get('action')
+        #         price = trade.get('price')
+        #         icon_map = {
+        #             'si': 'b+',
+        #             'so': 'r+',
+        #             'li': 'gx',
+        #             'lo': 'rx'
+        #         }
+        #         axs[0].plot(i, price, icon_map.get(action))
+        # plt.show()
 
 
 start = pd.Timestamp.now() - pd.Timedelta(days=50)
@@ -236,30 +258,30 @@ symbols = [
 symbols = ['AAPL']
 account = Account()
 account.cash = 25000
-account.equity = 25000
-account.daytrading_buying_power = 100000
+account.buying_power = account.cash
 mockapi = MockApi(account)
 
 params = {
-    'sma':{
-        'level': .005
+    'sl': .5,
+    'period': 50,
+    'rsi': {
+        'period': 20
     },
-    'rsi':{
-        'topLevel': 65,
-        'bottomLevel': 35
-    },
-    'sl':.05,
-    'period':30,
     'assets': symbols,
-    'timeframe': 'minute',
-    'API': mockapi
+    'timeframe': 'day',
+    'API': mockapi,
+    'closeEOD': False,
+    'posSize': .1
 }
 
 for symbol in symbols:
-    strategy = Marsi('backtest', params)
+    strategy = LongShortML('backtest', params)
     backtester = Backtester(strategy, account)
     backtester.singleAssetBacktest(symbol)
-    print(backtester.account.cash)
-    pprint.pprint(backtester.account.equities)
-    plt.plot(backtester.account.equities)
+    print((backtester.account.equities[-1]-backtester.account.equities[0])/backtester.account.equities[0])
+    #pprint.pprint(backtester.account.equities)
+
+    fig, axs = plt.subplots(2, 1)
+    axs[0].plot(backtester.prices)
+    axs[1].plot(backtester.account.equities)
     plt.show()
