@@ -118,7 +118,7 @@ class Executor:
         buys = [o for o in orders if o['side'] == 'buy']
         self.bulkBuy(buys, wait=wait)
                       
-    def get_prices(self, start, end=None, limit=50, tz='America/New_York'):
+    def get_prices(self, start, end=None, limit=100, tz='America/New_York'):
         '''
         Gets prices for list of symbols and returns a pandas df
 
