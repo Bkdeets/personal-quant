@@ -82,8 +82,8 @@ def rootHandler(strategies):
     for job in jobs:
         job.start()
 
-rootHandler(
-    [
-        Marsi('paper', marsi_params)
-    ]
-)
+# rootHandler(
+#     [
+#         #Marsi('paper', marsi_params)
+#     ]
+# )
