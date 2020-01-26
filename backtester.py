@@ -1,5 +1,6 @@
 from src.strategies.marsi import Marsi
 from src.strategies.longshort import LongShort
+from src.strategies.longshortML import LongShortML
 import pandas as pd
 import matplotlib.pyplot as plt
 import alpaca_trade_api as tradeapi
@@ -135,7 +136,7 @@ class Backtester:
     def setEquity(self):
         value = 0
         for position in self.account.positions:
-            if position.side == 'short':
+            if position.side == 'short' or position.side == 'sell':
                 entryValue = position.entryPrice * position.qty
                 currentValue = self.currentPrice * position.qty
                 value = (entryValue - currentValue) + entryValue
@@ -185,6 +186,7 @@ class Backtester:
         start = pd.Timestamp.now() - pd.Timedelta(days=50)
         prices_df = self.get_prices(start)
         prices = list(prices_df.get(ticker).get('close'))
+        self.prices = prices
         print((prices[-1]-prices[0])/prices[0])
         plt.plot(prices)
         plt.show()
@@ -260,19 +262,26 @@ account.buying_power = account.cash
 mockapi = MockApi(account)
 
 params = {
-    'sl': .05,
-    'period': 10,
+    'sl': .5,
+    'period': 50,
+    'rsi': {
+        'period': 20
+    },
     'assets': symbols,
     'timeframe': 'day',
     'API': mockapi,
-    'closeEOD': True
+    'closeEOD': False,
+    'posSize': .1
 }
 
 for symbol in symbols:
-    strategy = LongShort('backtest', params)
+    strategy = LongShortML('backtest', params)
     backtester = Backtester(strategy, account)
     backtester.singleAssetBacktest(symbol)
     print((backtester.account.equities[-1]-backtester.account.equities[0])/backtester.account.equities[0])
     #pprint.pprint(backtester.account.equities)
-    plt.plot(backtester.account.equities)
+
+    fig, axs = plt.subplots(2, 1)
+    axs[0].plot(backtester.prices)
+    axs[1].plot(backtester.account.equities)
     plt.show()
