@@ -12,7 +12,11 @@ def make_request(endpoint, ticker, params):
         url,
         params=params
     )
-    return response.json()
+    try:
+        res = response.json()
+        return res
+    except:
+        return None
 
 def get_fundamentals(ticker, limit=2):
     endpoint = 'v2/reference/financials/'
@@ -24,14 +28,18 @@ def get_fundamentals(ticker, limit=2):
     return make_request(endpoint, ticker, params)
 
 def get_last_trade(ticker):
-    endpoint = '/v1/last/stocks/' 
+    endpoint = 'v1/last/stocks/' 
     params = {
         'apiKey': KEY
     }
     return make_request(endpoint, ticker, params)
 
 def get_current_price(ticker):
-    return get_last_trade(ticker).get('last').get('price')
+    last_trade = get_last_trade(ticker)
+    if last_trade:
+        last = last_trade.get('last')
+        if last:
+            return last.get('price')
 
 def get_free_cash_flow(ticker):
     endpoint = 'v2/reference/financials/'

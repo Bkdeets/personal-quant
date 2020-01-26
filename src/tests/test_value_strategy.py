@@ -110,13 +110,14 @@ class TestValueStrategy:
         }
         self.beforeEach(params=params)
         def list_positions():
-            return [MockObj(symbol='AAPL')]
+            return [MockObj(symbol='AAPL', id='2')]
         def mock_get_activities_new(activity_types='FILL'):
             today = datetime.date.today()
             d1 = today.strftime('%Y-%m-%d')
             obj = MockObj(
                 symbol='AAPL',
-                transaction_time=d1+' blahblah')
+                transaction_time=d1+' blahblah',
+                id='3')
             return [obj]
         api = MockApi()
         api.list_positions = list_positions

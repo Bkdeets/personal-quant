@@ -2,27 +2,15 @@ import alpaca_trade_api as tradeapi
 import pandas as pd
 import time
 import logging
-from sma import SMA
+from src.indicators.sma import SMA
+from src.strategies.AStrategy import AStrategy
 
 
-class MACrossPaper():
-    API = tradeapi.REST(
-        key_id='-',
-        secret_key='-',
-        base_url='https://paper-api.alpaca.markets')
+class MACross(AStrategy):
 
-    def __init__(self, params):
-        self.logger = logging.getLogger(__name__)
-        logging.basicConfig(level=logging.DEBUG)
-
-        self.NY = 'America/New_York'
-        self.id = 1
-
-        # TODO: create new api key and hide it
-        self.api = None
-        self.params = params
-
-
+    def __init__(self, env, params):
+        super().__init__()
+        self.strategy_code = 'MAX'
 
     def sort_func(self, sma_obj):
         return sma_obj.sma[-1]
@@ -43,9 +31,7 @@ class MACrossPaper():
         return toBuy
 
 
-    def get_orders(self, prices_df, position_size=.02, max_positions=5):
-
-        # rank the stocks based on the indicators.
+    def rankSMAS(prices_df):
         smas = []
         symbols = set()
         for col in prices_df.columns:
@@ -56,12 +42,20 @@ class MACrossPaper():
             sma = SMA(self.params.get('period'), prices_df[symbol].dropna(), symbol)
             c += 1
             smas.append(sma)
-
         ranked = self.rank(smas)
-        ranked = ranked[::-1]
+        return ranked[::-1]
+    
+    def checkForSells(self):
+        to_sell = [sma.ticker for sma in smas if sma.sma[-1] > sma.prices.iloc[-1,:].close and sma.ticker in holding_symbols]
+
+        return
+
+
+    def get_orders(self, prices_df=[], position_size=.05):
+
+        ranked = self.rankSMAS(prices_df)
 
         to_buy = []
-        to_sell = []
         account = self.API.get_account()
 
         # now get the current positions and see what to buy,
@@ -72,8 +66,9 @@ class MACrossPaper():
         holdings = {p.symbol: p for p in positions}
         holding_symbols = list(holdings.keys())
 
+        to_sell = self.checkForSells(holdings)
+
         if holdings:
-            to_sell = [sma.ticker for sma in smas if sma.sma[-1] > sma.prices.iloc[-1,:].close and sma.ticker in holding_symbols]
 
         ranked = self.checkToBuy(ranked[:max_positions])
         to_buy = [sma.ticker for sma in ranked]

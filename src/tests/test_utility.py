@@ -86,7 +86,8 @@ class TestUtility:
         fundamentals = [{
             'ticker': 'AAPL',
             'freeCashFlow': 10
-        },{
+        },
+        {
             'ticker': 'AAPL',
             'freeCashFlow': 20
         }]
@@ -100,11 +101,13 @@ class TestUtility:
 
     def test_calc_avg_fcf_happy(self):
         fundamentals = [{
-            'ticker': 'AAPL',
-            'freeCashFlow':100},
+                'ticker': 'AAPL',
+                'freeCashFlow':100
+            },
             {
-            'ticker': 'AAPL',
-            'freeCashFlow':100}]
+                'ticker': 'AAPL',
+                'freeCashFlow':100
+            }]
         result = Utility().calc_avg_fcf(fundamentals)
         assert result == 100
 
