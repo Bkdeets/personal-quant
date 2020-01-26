@@ -84,6 +84,6 @@ def rootHandler(strategies):
 
 rootHandler(
     [
-        Marsi('paper', marsi_params)
+        ValueStrategy('live', value_params)
     ]
 )
