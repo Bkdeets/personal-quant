@@ -183,26 +183,26 @@ class Backtester:
                 self.trades.append(None)
             self.syncBuyingPowerAndCash()
                 
-        # fig, axs = plt.subplots(2, 1)
+        fig, axs = plt.subplots(2, 1)
 
-        # axs[0].plot(prices[period:])
-        # # # axs[0].plot(smas[period:])
-        # # # axs[1].plot(rsis[period:])
-        # # axs[0].plot(self.account.equities)
+        axs[0].plot(prices[period:])
+        # # axs[0].plot(smas[period:])
+        # # axs[1].plot(rsis[period:])
+        # axs[0].plot(self.account.equities)
 
-        # for i in range(0,len(self.trades)):
-        #     trade = self.trades[i]
-        #     if trade:
-        #         action = trade.get('action')
-        #         price = trade.get('price')
-        #         icon_map = {
-        #             'si': 'b+',
-        #             'so': 'r+',
-        #             'li': 'gx',
-        #             'lo': 'rx'
-        #         }
-        #         axs[0].plot(i, price, icon_map.get(action))
-        # plt.show()
+        for i in range(0,len(self.trades)):
+            trade = self.trades[i]
+            if trade:
+                action = trade.get('action')
+                price = trade.get('price')
+                icon_map = {
+                    'si': 'b+',
+                    'so': 'r+',
+                    'li': 'gx',
+                    'lo': 'rx'
+                }
+                axs[0].plot(i, price, icon_map.get(action))
+        plt.show()
 
 
 start = pd.Timestamp.now() - pd.Timedelta(days=50)
@@ -239,7 +239,7 @@ mockapi = MockApi(account)
 
 params = {
     'sl': .5,
-    'period': 50,
+    'period': 20,
     'rsi': {
         'period': 20
     },

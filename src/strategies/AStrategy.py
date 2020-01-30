@@ -11,6 +11,18 @@ class AStrategy(ABC):
         logging.basicConfig(level=logging.DEBUG)
         self.NY = 'America/New_York'
         self.env = env
+        self.map_to_action = {
+            'sell':'sell',
+            'short':'sell',
+            'buy':'buy',
+            'long':'buy'
+        }
+        self.map_to_direction = {
+            'sell':'short',
+            'short':'short',
+            'buy':'long',
+            'long':'long'
+        }
 
         if env == 'test' or env == 'backtest':
             self.API = params.get('API')

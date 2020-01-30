@@ -23,7 +23,6 @@
 #         exit ct and enter nt (ie. flip the trade)
 #             (...order would be double the size)
 
-
 from src.strategies.AStrategy import AStrategy
 from ..wrappers import polygon as p
 import numpy as n
@@ -35,22 +34,10 @@ import logging
 import pprint
 
 class LongShortML(AStrategy):
-
+    
     def __init__(self, env, params):
         super().__init__(env, params)
         self.strategy_code = 'LSML'
-        self.po_map = {
-            'sell':'short',
-            'short':'sell',
-            'buy':'long',
-            'long':'buy'
-        }
-
-    def getChanges(self, prices):
-        changes = [0]
-        for i in range(1,len(prices)):
-            changes.append((prices[i] - prices[i-1])/prices[i-1])
-        return changes
     
     def getRsis(self, prices):
         rsi = RSI(self.params.get('rsi').get('period'), prices, 'NA')
@@ -67,11 +54,10 @@ class LongShortML(AStrategy):
             return float(account.buying_power)//price
     
     def getDirection(self, prices, changes, rsis, current_price, ticker):
-        # TODO: Make sure values are lined up
 
-        previousPrices = [0]
-        for i in range(0,len(prices)-1):
-            previousPrices.append(prices[i])
+        previousPrices = prices.copy()
+        previousPrices.insert(0,0)
+        previousPrices = previousPrices[0:-1]
 
         data = {
             'prices': prices,
@@ -103,9 +89,16 @@ class LongShortML(AStrategy):
         logging.info(f'{self.strategy_code}: Predicted: {pred_price} Current: {current_price}')
 
         if pred_price > current_price:
-            return 'buy'
-        return 'sell'
+            return 'long'
+        return 'short'
 
+    def getSuggestedAction(self, pred_direction, current_action):
+        suggested_action = self.map_to_action.get(pred_direction)
+        current_action = self.map_to_action.get(current_action)
+        if suggested_action == current_action:
+            return None
+        else:
+            return suggested_action
 
     def get_orders(self, current_price=0, position_size=.1, prices_df=0):
         orders = []
@@ -129,30 +122,40 @@ class LongShortML(AStrategy):
                 closes = prices_df.get(ticker).get('close').dropna()
                 list_of_prices = list(closes)
 
-                changes = self.getChanges(list_of_prices)
+                changes = Utility().getChanges(list_of_prices)
                 rsis = self.getRsis(list_of_prices)
 
-                side = self.getDirection(list_of_prices, changes, rsis, current_price, ticker)
+                direction = self.getDirection(list_of_prices, changes, rsis, current_price, ticker)
                 current_side = Utility().getCurrentSide(self.strategy_code, ticker, self.API)
 
-                if not current_side:
-                    orders.append({
-                        'symbol': ticker,
-                        'qty': self.getShares(current_price, self.params.get('posSize')),
-                        'side': side
-                    })
-                elif current_side and side != self.po_map.get(current_side):
-                    curr_qty = Utility().getPosition(self.strategy_code, ticker, self.API).qty
-                    orders.append({
-                        'symbol': ticker,
-                        'qty': curr_qty,
-                        'side': side
-                    })
-                    orders.append({
-                        'symbol': ticker,
-                        'qty': self.getShares(current_price, self.params.get('posSize')),
-                        'side': side
-                    })
+                logging.info(f'''
+                    {self.strategy_code}: {ticker}: 
+                    Current active direction: {self.map_to_direction.get(current_side)} 
+                    Suggested direction: {direction}
+                ''')
+                
+                suggested_action = self.getSuggestedAction(direction, current_side)
+
+                logging.info(f'{self.strategy_code}: {ticker}: Suggested action: {suggested_action}')
+                if suggested_action:
+                    if not current_side:
+                        orders.append({
+                            'symbol': ticker,
+                            'qty': self.getShares(current_price, self.params.get('posSize')),
+                            'side': suggested_action
+                        })
+                    elif current_side:
+                        curr_qty = Utility().getPosition(self.strategy_code, ticker, self.API).qty
+                        orders.append({
+                            'symbol': ticker,
+                            'qty': curr_qty,
+                            'side': suggested_action
+                        })
+                        orders.append({
+                            'symbol': ticker,
+                            'qty': self.getShares(current_price, self.params.get('posSize')),
+                            'side': suggested_action
+                        })
 
         return orders
 
