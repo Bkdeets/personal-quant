@@ -1,44 +1,20 @@
-from src.strategies.marsi import Marsi
-from src.strategies.longshort import LongShort
-from src.strategies.longshortML import LongShortML
+# General imports
 import pandas as pd
 import matplotlib.pyplot as plt
 import alpaca_trade_api as tradeapi
 import os
 import pprint
 
-class Account:
-    cash = 0
-    equity = 0
-    buying_power = 0
-    positions = []
-    equities = []
-    activities = []
+# Strategies imports
+from src.strategies.marsi import Marsi
+from src.strategies.longshort import LongShort
+from src.strategies.longshortML import LongShortML
 
-class MockApi:
-    def __init__(self, account):
-        self.account = account
-
-    def list_positions(self):
-        return self.account.positions
-
-    def get_activities(self, activity_types='FILL'):
-        return self.account.activities
-
-    def get_account(self):
-        return self.account
-
-class Activity:
-    def __init__(self, symbol, id_code):
-        self.symbol = symbol
-        self.id = id_code
-
-class Position:
-    def __init__(self, symbol, side, qty, entryPrice):
-        self.symbol = symbol
-        self.side = side
-        self.qty = qty
-        self.entryPrice = entryPrice
+# Mocks imports
+from src.mocks.account import Account
+from src.mocks.activity import Activity
+from src.mocks.api import MockApi
+from src.mocks.position import Position
     
 class Backtester:
     API = tradeapi.REST(

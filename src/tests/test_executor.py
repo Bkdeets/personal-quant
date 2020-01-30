@@ -1,35 +1,8 @@
 from src.executor import Executor
 import pytest
 import datetime
-class MockObj(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-class MockApi:
-    def submit_order(self, symbol='AAPL', qty=1000, side='buy', type='market', time_in_force='day', client_order_id='2'):
-        return [{'status':200}]
-    def list_orders(self):
-        return [{'status':200}]
-    def get_barset(self, symbols, timeframe, limit=10, start=10, end=10):
-        def update(x):
-            return True
-        barset = MockObj(df=True, update=update)
-        barset.df = True
-        return barset
-    def get_clock(self):
-        return True
-    def get_account(self):
-        return True
-    def list_positions(self):
-        return []
-
-class MockStrategy:
-    strategy_code = 'test'
-    params = {
-        'timeframe': 'minute',
-        'assets': ['AAPL']
-    }
-    def getOrders(self):
-        return [True]
+from src.mocks.api import MockApi
+from src.mocks.strategy import MockStrategy
 
 class TestExecutor:
     def before_each(self):
