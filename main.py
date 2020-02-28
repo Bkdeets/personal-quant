@@ -76,7 +76,7 @@ def rootHandler(strategies):
     jobs = []
     for strategy in strategies:
         print(f':{strategy.strategy_code} : Strategy thread started')
-        e = Executor('paper', strategy)
+        e = Executor(strategy.env, strategy)
         thread = threading.Thread(target=e.beginTrading)
         jobs.append(thread)
     for job in jobs:
