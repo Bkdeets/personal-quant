@@ -8,3 +8,4 @@ pytest-cov
 pylivetrader
 pipeline_live
 numpy
+aiocontextvars>=0.2.0
