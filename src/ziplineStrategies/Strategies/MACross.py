@@ -3,7 +3,7 @@ from pipeline_live.engine import LivePipelineEngine
 from pipeline_live.data.alpaca.pricing import USEquityPricing
 from pipeline_live.data.sources.iex import list_symbols
 from zipline.pipeline import Pipeline
-from Filters.CurVsAvgVolFilter import curVsAvgVolFilter
+from ..Filters.CurVsAvgVolFilter import curVsAvgVolFilter
 from pipeline_live.data.iex.factors import (AverageDollarVolume, SimpleMovingAverage)
 from pylivetrader.api import(
     symbol,
