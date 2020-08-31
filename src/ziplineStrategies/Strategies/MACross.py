@@ -51,6 +51,7 @@ def handle_data(context, data):
     filtered = applyPipelineFilters(pr)
     if not filtered.empty:
         for asset, value in filtered.iterrows():
+            asset = symbol(asset)
             currentPrice = data.current(asset, "close")
             stopPrice = currentPrice * context.stopLevel
             if longConditionsMet(value, currentPrice):
