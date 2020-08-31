@@ -5,3 +5,6 @@ flask
 iexfinance
 pytest
 pytest-cov
+pylivetrader
+pipeline_live
+numpy
