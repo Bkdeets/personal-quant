@@ -34,7 +34,7 @@ def initialize(context):
 
 def make_pipeline(context):
     advFilter = curVsAvgVolFilter(context.params.get('lookback'))
-    midToLargeFilter = isMidToLargeCap()
+    midToLargeFilter = isMidToLargeCap(context.params.get('lookback'))
     smaSlow = SimpleMovingAverage(
         inputs=[USEquityPricing.close],
         window_length=context.params.get('smaSlowLookback'))
