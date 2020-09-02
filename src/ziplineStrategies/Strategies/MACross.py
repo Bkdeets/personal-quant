@@ -12,7 +12,6 @@ from pylivetrader.api import(
     order_target_percent)
 import logging
 
-
 ENGINE = LivePipelineEngine(list_symbols)
 
 def initialize(context):
