@@ -72,7 +72,7 @@ def entryAndExitLogic(context, data, filtered):
                 order_target_percent(asset, 0.0)
 
 def manageStops(context, data):
-    for key, value in context.portfolio.positions.items():
+    for asset, value in context.portfolio.positions.items():
         stopPrice = context.stopPriceMap[asset]
         currentPrice = data.current(key, 'close')
         newStop = currentPrice * context.stopLevel
