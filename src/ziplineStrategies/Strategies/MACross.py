@@ -37,7 +37,6 @@ def make_pipeline(context):
     top50 = AverageDollarVolume(window_length=20).top(50)
 
     pipe = Pipeline(screen=top50)
-    pipe.add(midToLargeFilter, 'midToLargeFilter')
     pipe.add(advFilter, 'advFilter')
     pipe.add(smaSlow, 'smaSlow')
     pipe.add(smaFast, 'smaFast')
@@ -87,5 +86,4 @@ def longConditionsMet(value, currentPrice):
 
 def applyPipelineFilters(pr):
     pr = pr[pr['advFilter']]
-    pr = pr[pr['midToLargeFilter']]
     return pr
