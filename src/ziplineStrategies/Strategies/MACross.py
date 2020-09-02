@@ -51,10 +51,10 @@ def handle_data(context, data):
     numOfPositions = len(context.portfolio.positions)
     pr = ENGINE.run_pipeline(make_pipeline(context))
     filtered = applyPipelineFilters(pr)
-    entryAndExitLogic(context, filtered)
+    entryAndExitLogic(context, data, filtered)
     manageStops(context, data)
 
-def entryAndExitLogic(context, filtered):
+def entryAndExitLogic(context, data, filtered):
     if not filtered.empty:
         for asset, value in filtered.iterrows():
             asset = symbol(asset)
