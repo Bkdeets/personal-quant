@@ -5,7 +5,9 @@ from pipeline_live.data.alpaca.factors import AverageDollarVolume
 from pipeline_live.data.sources.polygon import list_symbols
 from zipline.pipeline import Pipeline
 from src.ziplineStrategies.Filters.CurVsAvgVolFilter import curVsAvgVolFilter
-from pipeline_live.data.iex.factors import (AverageDollarVolume, SimpleMovingAverage)
+# from src.ziplineStrategies.Filters.CompanySizeFilter import isMidToLargeCap
+
+from pipeline_live.data.iex.factors import SimpleMovingAverage
 from pylivetrader.api import(
     symbol,
     pipeline_output,
@@ -28,6 +30,7 @@ def initialize(context):
 
 def make_pipeline(context):
     advFilter = curVsAvgVolFilter(context.params.get('lookback'))
+    # midToLargeFilter = isMidToLargeCap(context.params.get('lookback'))
     smaSlow = SimpleMovingAverage(
         inputs=[USEquityPricing.close],
         window_length=context.params.get('smaSlowLookback'))
@@ -40,6 +43,7 @@ def make_pipeline(context):
     pipe.add(advFilter, 'advFilter')
     pipe.add(smaSlow, 'smaSlow')
     pipe.add(smaFast, 'smaFast')
+    # pipe.add(midToLargeFilter, 'midToLargeFilter')
 
     return pipe
 
