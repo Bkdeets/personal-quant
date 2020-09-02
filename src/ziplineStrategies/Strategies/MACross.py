@@ -74,7 +74,7 @@ def entryAndExitLogic(context, data, filtered):
 def manageStops(context, data):
     for asset, value in context.portfolio.positions.items():
         stopPrice = context.stopPriceMap[asset]
-        currentPrice = data.current(key, 'close')
+        currentPrice = data.current(asset, 'close')
         newStop = currentPrice * context.stopLevel
         if currentPrice < stopPrice:
             logging.info(f'Stopped out of {asset}')
