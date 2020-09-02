@@ -51,7 +51,7 @@ def handle_data(context, data):
     numOfPositions = len(context.portfolio.positions)
     pr = ENGINE.run_pipeline(make_pipeline(context))
     filtered = applyPipelineFilters(pr)
-    entryAndExitLogic(filtered)
+    entryAndExitLogic(context, filtered)
     manageStops(context, data)
 
 def entryAndExitLogic(context, filtered):
