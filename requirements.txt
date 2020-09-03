@@ -1,6 +1,6 @@
 backtrader
 pandas==0.22
-alpaca_trade_api==0.41
+alpaca_trade_api==0.50.1
 flask
 iexfinance
 pytest
