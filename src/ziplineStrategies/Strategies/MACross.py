@@ -58,12 +58,12 @@ def entryAndExitLogic(context, data, filtered):
         for asset, value in filtered.iterrows():
             asset = symbol(asset)
             currentPrice = data.current(asset, 'close')
-            stopPrice = currentPrice * context.stopLevel
+            # stopPrice = currentPrice * context.stopLevel
             if longConditionsMet(value, currentPrice):
                 # enter position with position size as long as leverage is below certain level
                 if withinLeverageLimit(context, numOfPositions):
-                    logging.info(f'Ordering shares of {asset} at {currentPrice} with a stop at {stopPrice}')
-                    context.stopPriceMap[asset] = stopPrice
+                    logging.info(f'Ordering shares of {asset} at {currentPrice}')
+                    # context.stopPriceMap[asset] = stopPrice
                     order_target_percent(asset, context.position_size)
                     numOfPositions += 1
             elif asset in context.portfolio.positions.keys():
