@@ -14,7 +14,6 @@ from pylivetrader.api import(
     order_target_percent)
 import logging
 
-
 ENGINE = LivePipelineEngine(list_symbols)
 
 def initialize(context):
@@ -51,7 +50,7 @@ def handle_data(context, data):
     pr = ENGINE.run_pipeline(make_pipeline(context))
     filtered = applyPipelineFilters(pr)
     entryAndExitLogic(context, data, filtered)
-    manageStops(context, data)
+    # manageStops(context, data)
 
 def entryAndExitLogic(context, data, filtered):
     numOfPositions = len(context.portfolio.positions)
