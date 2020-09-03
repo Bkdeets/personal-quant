@@ -68,7 +68,8 @@ def entryAndExitLogic(context, data, filtered):
                     numOfPositions += 1
             elif asset in context.portfolio.positions.keys():
                 logging.info(f'Exiting position in {asset}')
-                order_target_percent(asset, 0.0)
+                if asset != symbol('NCNO'):
+                    order_target_percent(asset, 0.0)
 
 def manageStops(context, data):
     for asset, value in context.portfolio.positions.items():
