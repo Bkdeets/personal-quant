@@ -1,4 +1,4 @@
-key_id: ${APCA_PAPER_KEY_ID}
-secret: ${APCA_PAPER_SECRET_KEY}
+key_id: ENV['APCA_PAPER_KEY_ID']
+secret: ENV['APCA_PAPER_SECRET_KEY']
 base_url: https://paper-api.alpaca.markets
 use_polygon: true
