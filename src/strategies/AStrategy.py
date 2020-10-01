@@ -4,7 +4,6 @@ import os
 import logging
 
 class AStrategy(ABC):
- 
     def __init__(self, env, params):
         super().__init__()
         self.logger = logging.getLogger(__name__)
@@ -26,6 +25,7 @@ class AStrategy(ABC):
                 base_url=os.getenv('APCA_API_BASE_URL'))
         self.env = env
         self.params = params
+        self.dataUtility = DataUtility(self)
         
     @abstractmethod
     def get_orders(self, position_size=.05, prices_df=[]):

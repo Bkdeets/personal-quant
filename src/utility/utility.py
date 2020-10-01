@@ -13,7 +13,6 @@ S_AND_P_500 = []
 IEX_TOKEN = os.getenv('IEX_TOKEN')
 
 class Utility:
-
     def calc_eps_growth(self, fundamentals):
         changes = []
         for i in range(0,len(fundamentals)-1):

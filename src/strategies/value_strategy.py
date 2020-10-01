@@ -6,6 +6,7 @@ import os
 from datetime import datetime, date, timedelta
 from ..strategies.AStrategy import AStrategy
 from ..utility.utility import Utility
+from ..utility.dataUtility import DataUtility
 from ..wrappers import polygon as p
 from ..utility import value_funcs as v
 
@@ -19,12 +20,13 @@ class ValueStrategy(AStrategy):
         self.NY = 'America/New_York'
         self.strategy_code = 'VLU'
         self.params = params
+        self.prices_df = prices_df
     
     def checkForSellsTP(self, positions):
         to_sell = []
         for position in positions:
                 try:
-                    current_price = p.get_current_price(position['symbol'])
+                    current_price = self.get_current_price(position['symbol'])
                 except:
                     continue
                 entry_price = position['avg_entry_price']
@@ -79,7 +81,8 @@ class ValueStrategy(AStrategy):
             })
         return orders
 
-    def get_orders(self, position_size=.05):
+    def get_orders(self, position_size=.05, prices_df):
+        self.prices_df = prices_df
         positions = Utility().getPositionsByStrategy(self.strategy_code, self.API)
         holdings = {p.symbol: p for p in positions}
         holding_symbols = list(holdings.keys())

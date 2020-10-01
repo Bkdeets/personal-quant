@@ -4,7 +4,8 @@ import time
 import alpaca_trade_api as tradeapi
 import os
 import threading
-import uuid 
+import uuid
+import MockAPI from
 
 class Executor:
     API = {}
@@ -17,6 +18,8 @@ class Executor:
 
     def __init__(self, env, strategy_instance):
         self.strategy_instance = strategy_instance
+        self.env = env
+        self.isBacktest = False
         self.initApi(env)
     
     def getApi(self):
@@ -28,6 +31,16 @@ class Executor:
     def initApi(self, env):
         if env == 'test':
             self.API = {}
+        if env == 'backtest':
+            self.startDate = self.strategy_instance.params.startDate
+            self.endDate = self.strategy_instance.params.endDate
+            self.assets = self.strategy_instance.params.assets
+
+            self.API = backtestAPI() ## TODO: Import backtest api and implement api funcs in a mock 
+            ## -- Want to be able to run backtest from executor so we can test multiple strats at once
+            self.isBacktest = True
+
+
         elif env == 'paper':
             self.API = tradeapi.REST(
                 key_id=os.getenv('ALPACA_PAPER_KEY_ID'),
@@ -48,20 +61,8 @@ class Executor:
             time_in_force='day',
             client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
 
-    def filterExistingPositions(self, orders, side):
-        filtered_orders = []
-        positions = self.API.list_positions()
-        holdings = {p.symbol: p for p in positions}
-        for order in orders:
-            relHolding = holdings.get(order.get('symbol'))
-            if relHolding and not relHolding.side == side:
-                filtered_orders.append(order)
-            elif not relHolding:
-                filtered_orders.append(order)
-        return filtered_orders
-
     def bulkBuy(self, buys, wait=30):
-        buys = self.filterExistingPositions(buys, 'buy')
+        buys = self.dedupeExistingPositions(buys, 'buy')
         for order in buys:
             try:
                 logging.info(f'{self.strategy_instance.strategy_code} : submit(buy): {order}')
@@ -91,7 +92,7 @@ class Executor:
             client_order_id=self.strategy_instance.strategy_code+str(uuid.uuid1()))
 
     def bulkSell(self, sells, wait=30):
-        sells = self.filterExistingPositions(sells, 'sell')
+        sells = self.dedupeExistingPositions(sells, 'sell')
         for order in sells:
             try:
                 logging.info(f'{self.strategy_instance.strategy_code} : submit(sell): {order}')
@@ -111,6 +112,18 @@ class Executor:
             time.sleep(1)
             count -= 1
 
+    def dedupeExistingPositions(self, orders, side):
+        filtered_orders = []
+        positions = self.API.list_positions()
+        holdings = {p.symbol: p for p in positions}
+        for order in orders:
+            relHolding = holdings.get(order.get('symbol'))
+            if relHolding and not relHolding.side == side:
+                filtered_orders.append(order)
+            elif not relHolding:
+                filtered_orders.append(order)
+        return filtered_orders
+
     def trade(self, orders, wait=30):
         sells = [o for o in orders if o['side'] == 'sell']
         self.bulkSell(sells, wait=wait)
@@ -129,7 +142,7 @@ class Executor:
         2019-06-21 11:55:00-04:00  199.850  199.980  199.810  ...  28.410  28.435   6169
         '''
 
-        timeframe=self.strategy_instance.params.get('timeframe')
+        timeframe = self.strategy_instance.params.get('timeframe')
         if not end:
             end = pd.Timestamp.now(tz=tz)
 
@@ -152,34 +165,42 @@ class Executor:
         # Turns barset into a df
         return barset.df
 
+    def setStatus():
+        try:
+            shouldTrade = self.API.shouldTrade()
+            self.trading = shouldTrade
+        except expression as identifier:
+            self.trading = True
+
     def beginTrading(self):
         logging.info(f'{self.strategy_instance.strategy_code} : start running')
         sleep = self.timeframe_map.get(self.strategy_instance.params.get('timeframe'))
+        self.trading = True
 
-        while True:
+        while self.trading:
             clock = self.API.get_clock()
             if clock.is_open:
                 if self.strategy_instance.params.get('needs_prices'):
                     logging.info(f'{self.strategy_instance.strategy_code}: Getting prices...')
                     start = pd.Timestamp.now() - pd.Timedelta(days=2)
                     prices_df = self.get_prices(start)
-
                     logging.info(f'{self.strategy_instance.strategy_code}: {prices_df.shape}')
-                    
                     logging.info(f'{self.strategy_instance.strategy_code}: Getting orders...')
                     orders = self.strategy_instance.get_orders(prices_df=prices_df)
                 else:
                     logging.info(f'{self.strategy_instance.strategy_code}: Getting orders...')
                     orders = self.strategy_instance.get_orders()
-
                 logging.info(f'{self.strategy_instance.strategy_code}: orders {orders}')
-                
                 self.trade(orders)
-                
                 logging.info(self.strategy_instance.strategy_code)
                 logging.info(self.API.get_account())
                 logging.info(f'{self.strategy_instance.strategy_code}: done for {clock.timestamp}')
                 logging.info(f'{self.strategy_instance.strategy_code}: waiting for {sleep}')
-            else:
+            else if not self.isBacktest:
                 time.sleep(60 * 10)
-            time.sleep(60 * sleep)
+            if self.isBacktest:
+                self.API.dateIndex += 1
+            else:
+                time.sleep(60 * sleep)
+            self.setStatus()
+                

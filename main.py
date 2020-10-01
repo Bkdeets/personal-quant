@@ -84,6 +84,6 @@ def rootHandler(strategies):
 
 rootHandler(
     [
-        ValueStrategy('live', value_params)
+        ValueStrategy('backtest', value_params)
     ]
 )

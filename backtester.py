@@ -107,9 +107,8 @@ class Backtester:
             for position in self.account.positions:
                 if position.symbol == order.get('symbol'):
                     matched_position = position
-
             isExit = matched_position and matched_position.side != self.po_map.get(order.get('side'))
-            if(matched_position and isExit):
+            if matched_position and isExit:
                 self.account.positions.remove(matched_position)
                 if matched_position.side == 'long':
                     self.account.cash += self.currentPrice * matched_position.qty
@@ -117,19 +116,25 @@ class Backtester:
                     entryValue = matched_position.entryPrice * matched_position.qty
                     exitValue = self.currentPrice * matched_position.qty
                     value = entryValue - exitValue
-                    self.account.cash +=  (value + entryValue)
+                    self.account.cash += (value + entryValue)
                 self.documentTrade(matched_position, isExit)
-            elif(not isExit and not matched_position):
+            elif not isExit and not matched_position:
                 cost = self.currentPrice * order.get('qty')
-                if(cost < self.account.cash):
+                if cost < self.account.buying_power:
                     position = Position(
                         order.get('symbol'),
                         self.po_map.get((order.get('side'))),
                         order.get('qty'),
-                        self.currentPrice
-                    )
+                        self.currentPrice)
                     self.account.positions.append(position)
-                    self.account.cash -= cost
+                    if cost > self.account.cash: 
+                        self.account.buying_power -= self.account.cash
+                        cost -= self.account.cash
+                        self.account.buying_power -= cost
+                    else:
+                        self.account.cash -= cost
+                        self.account.buying_power -= cost
+                    
                     self.account.activities.append(Activity(position.symbol, self.strategy_instance.strategy_code))
                     self.documentTrade(position, False)
         
@@ -149,7 +154,7 @@ class Backtester:
         closes = []
         for position in self.account.positions:
             change = (self.currentPrice - position.entryPrice)/position.entryPrice
-            if position.side == 'long' and abs(change) > self.strategy_instance.params.get('sl'):
+            if position.side == 'long' and change < -self.strategy_instance.params.get('sl'):
                 closes.append({
                     'symbol': position.symbol,
                     'qty': position.qty,
@@ -181,52 +186,50 @@ class Backtester:
     def syncBuyingPowerAndCash(self):
         self.account.buying_power = self.account.cash
 
-    def singleAssetBacktest(self, ticker):
+    def multiAssetBacktest(self, plotResults):
         period = self.strategy_instance.params.get('period')
         start = pd.Timestamp.now() - pd.Timedelta(days=50)
         prices_df = self.get_prices(start)
-        prices = list(prices_df.get(ticker).get('close'))
-        self.prices = prices
-        print((prices[-1]-prices[0])/prices[0])
-        plt.plot(prices)
-        plt.show()
-        for i in range(period, len(prices)-1):
-            self.currentPrice = prices[i]
-            self.setEquity()
-            if self.strategy_instance.params.get('closeEOD'):
-                self.closeOpenPositions()
+        for (asset in prices_df):
+            prices = list(prices_df.get(asset).get('close'))
+            self.prices = prices
+            if plotResults:
+                plt.plot(prices)
+                plt.show()
+            for i in range(period, len(prices)-1):
+                self.currentPrice = prices[i]
+                self.setEquity()
+                if self.strategy_instance.params.get('closeEOD'):
+                    self.closeOpenPositions()
 
-            df_chunk = prices_df.iloc[i - period:i+1,]
-            orders = self.strategy_instance.get_orders(current_price=self.currentPrice, prices_df=df_chunk)
-            if orders:
-                orders.extend(self.getSLTPCloses())
-                print(f'orders: {orders}')
-                print(f'positions: {self.account.positions}')
-                self.trade(orders)
-            else:
-                self.trades.append(None)
-            self.syncBuyingPowerAndCash()
+                df_chunk = prices_df.iloc[i - period:i+1,]
+                orders = self.strategy_instance.get_orders(current_price=self.currentPrice, prices_df=df_chunk)
+                if orders:
+                    orders.extend(self.getSLTPCloses())
+                    print(f'orders: {orders}')
+                    print(f'positions: {self.account.positions}')
+                    self.trade(orders)
+                else:
+                    self.trades.append(None)
+                self.syncBuyingPowerAndCash()
                 
-        # fig, axs = plt.subplots(2, 1)
+        fig, axs = plt.subplots(2, 1)
 
-        # axs[0].plot(prices[period:])
-        # # # axs[0].plot(smas[period:])
-        # # # axs[1].plot(rsis[period:])
-        # # axs[0].plot(self.account.equities)
+        axs[0].plot(prices[period:])
 
-        # for i in range(0,len(self.trades)):
-        #     trade = self.trades[i]
-        #     if trade:
-        #         action = trade.get('action')
-        #         price = trade.get('price')
-        #         icon_map = {
-        #             'si': 'b+',
-        #             'so': 'r+',
-        #             'li': 'gx',
-        #             'lo': 'rx'
-        #         }
-        #         axs[0].plot(i, price, icon_map.get(action))
-        # plt.show()
+        for i in range(0,len(self.trades)):
+            trade = self.trades[i]
+            if trade:
+                action = trade.get('action')
+                price = trade.get('price')
+                icon_map = {
+                    'si': 'b+',
+                    'so': 'r+',
+                    'li': 'gx',
+                    'lo': 'rx'
+                }
+                axs[0].plot(i, price, icon_map.get(action))
+        plt.show()
 
 
 start = pd.Timestamp.now() - pd.Timedelta(days=50)
